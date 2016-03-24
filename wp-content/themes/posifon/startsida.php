@@ -147,30 +147,11 @@ get_header(); ?>
                 </div>
               </div>
               <div class="product-info-container">
-                <p style="text-align: right;"><a href="" class="button accessories-toggle" id=""><?php esc_html_e('Visa tillbehör', 'accessories-link'); ?></a></p>
+                <h3>Careousel <?php the_title(); ?></h3>
                 <?php the_content(); ?>                
               </div>
             </div>
             <?php endwhile; wp_reset_postdata(); 
-            // end of loop
-            ?>
-            <?php $loop = new WP_Query( array( 'content_taxonomy' => 'accessories' ) );
-            if ($loop->have_posts()) : while ( $loop->have_posts() ) : $loop->the_post(); 
-            // Start new loop ?>
-            <div class="post tab-content card" id="<?php echo "accessories-".sanitize_title_with_dashes(get_the_title()); ?>">
-              <div class="product-gallery-container">
-                <p><?php the_content(); ?></p>
-              </div>
-              <div class="product-info-container">
-                <p style="text-align: right;"><a href="" class="button accessories-toggle" id=""><?php esc_html_e('Visa beskrivning', 'description-link'); ?></a></p>
-                <?php
-                if ( function_exists( 'easy_image_gallery' ) ) {
-                  echo easy_image_gallery();
-                }
-                ?>
-              </div>
-            </div>
-            <?php endwhile; endif; wp_reset_postdata(); 
             // end of loop
             ?>
           </div>

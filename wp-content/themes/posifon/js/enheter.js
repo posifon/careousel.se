@@ -42,7 +42,7 @@ jQuery(document).ready(function ($) {
     openTab($(this)); // calls function openTab with the current tab object as argument. 
   });
   
-  function flipCard(card) {
+/*  function flipCard(card) {
     var cardId = card.parents('.tab-content').siblings('[id$=' + card.parents('.tab-content').attr('id').replace('accessories-', '') + ']').addBack().toggle();
     console.log(cardId);
   }
@@ -50,6 +50,6 @@ jQuery(document).ready(function ($) {
    $('.accessories-toggle').on('click', function (e) {
      e.preventDefault();
      flipCard($(this));
-   });
+   });*/
 
 });

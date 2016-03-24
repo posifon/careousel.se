@@ -511,9 +511,9 @@ class CF7DBPlugin extends CF7DBPluginLifeCycle implements CFDBDateFormatter {
             !$this->canUserDoRoleOption('CanSeeSubmitDataViaShortcode')) {
             CFDBDie::wp_die(__('You do not have sufficient permissions to access this page.', 'contact-form-7-to-database-extension'));
         }
-        $submitTime = $_REQUEST['s'];
-        $formName = $_REQUEST['form'];
-        $fieldName = $_REQUEST['field'];
+        $submitTime = stripslashes($_REQUEST['s']);
+        $formName = stripslashes($_REQUEST['form']);
+        $fieldName = stripslashes($_REQUEST['field']);
         if (!$submitTime || !$formName || !$fieldName) {
             CFDBDie::wp_die(__('Missing form parameters', 'contact-form-7-to-database-extension'));
         }
@@ -805,7 +805,7 @@ class CF7DBPlugin extends CF7DBPluginLifeCycle implements CFDBDateFormatter {
             }
 
             // If the submitter is logged in, capture his id
-            if ($user) {
+            if ($user && !$this->fieldMatches('Submitted Login', $noSaveFields)) {
                 $order = ($order < 9999) ? 9999 : $order + 1; // large order num to try to make it always next-to-last
                 $wpdb->query($wpdb->prepare($parametrizedQuery,
                                             $time,
@@ -816,13 +816,15 @@ class CF7DBPlugin extends CF7DBPluginLifeCycle implements CFDBDateFormatter {
             }
 
             // Capture the IP Address of the submitter
-            $order = ($order < 10000) ? 10000 : $order + 1; // large order num to try to make it always last
-            $wpdb->query($wpdb->prepare($parametrizedQuery,
-                                        $time,
-                                        $title,
-                                        'Submitted From',
-                                        $ip,
-                                        $order));
+            if (!$this->fieldMatches('Submitted From', $noSaveFields)) {
+                $order = ($order < 10000) ? 10000 : $order + 1; // large order num to try to make it always last
+                $wpdb->query($wpdb->prepare($parametrizedQuery,
+                        $time,
+                        $title,
+                        'Submitted From',
+                        $ip,
+                        $order));
+            }
 
         }
         catch (Exception $ex) {
@@ -863,8 +865,9 @@ class CF7DBPlugin extends CF7DBPluginLifeCycle implements CFDBDateFormatter {
     public function getFileFromDB($time, $formName, $fieldName) {
         global $wpdb;
         $tableName = $this->getSubmitsTableName();
-        $parametrizedQuery = "SELECT `field_value`, `file` FROM `$tableName` WHERE `submit_time` = %F AND `form_name` = %s AND `field_name` = '%s'";
-        $rows = $wpdb->get_results($wpdb->prepare($parametrizedQuery, $time, $formName, $fieldName));
+        $sql = "SELECT `field_value`, `file` FROM `$tableName` WHERE `submit_time` = %F AND `form_name` = %s AND `field_name` = '%s'";
+        $sql = $wpdb->prepare($sql, $time, $formName, $fieldName);
+        $rows = $wpdb->get_results($sql);
         if ($rows == null || count($rows) == 0) {
             return null;
         }
@@ -877,13 +880,11 @@ class CF7DBPlugin extends CF7DBPluginLifeCycle implements CFDBDateFormatter {
      * @return void
      */
     public function createAdminMenu() {
-        $roleAllowed = 'Administrator';
         $displayName = $this->getPluginDisplayName();
 
         $hideFromNonAdmins = $this->getOption('HideAdminPanelFromNonAdmins', 'false', true) != 'false';
-        if ($hideFromNonAdmins) {
-            $roleAllowed = 'Administrator';
-        } else {
+        $roleAllowed = 'Administrator';
+        if (!$hideFromNonAdmins) {
             $roleAllowed = $this->getRoleOption('CanSeeSubmitData');
             if (!$roleAllowed) {
                 $roleAllowed = 'Administrator';
@@ -1233,7 +1234,6 @@ class CF7DBPlugin extends CF7DBPluginLifeCycle implements CFDBDateFormatter {
      * @return string
      */
     public function getSubmitsTableName() {
-        global $wpdb;
         $tableName = $this->getSubmitsTableName_raw();
         if (! $this->isTableDefined($tableName)) {
             // This should correct for missing tables and dynamically add them
@@ -1244,7 +1244,6 @@ class CF7DBPlugin extends CF7DBPluginLifeCycle implements CFDBDateFormatter {
     }
 
     public function getSTTableName() {
-        global $wpdb;
         $tableName = $this->getSTTableName_raw();
         if (! $this->isTableDefined($tableName)) {
             // This should correct for missing tables and dynamically add them
