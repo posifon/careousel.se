@@ -12,7 +12,7 @@ function posifon_setup() {
 	 * If you're building a theme based on posifon, use a find and replace
 	 * to change 'posifon' to the name of your theme in all the template files
 	 */
-	//load_theme_textdomain( 'posifon', get_template_directory() . '/languages' );
+	load_theme_textdomain( 'posifon', get_template_directory() . '/languages' );
 
     // Clean up the <head>
     remove_action('wp_head', 'rsd_link');
@@ -32,7 +32,6 @@ function posifon_setup() {
 
 	/*
 	 * Enable support for Post Thumbnails on posts and pages.
-	 *
 	 * See: https://codex.wordpress.org/Function_Reference/add_theme_support#Post_Thumbnails
 	 */
 	add_theme_support( 'post-thumbnails' );
@@ -68,9 +67,9 @@ function posifon_setup() {
       'admin-preview-callback' => '',
     );
     add_theme_support( 'custom-header', $defaults );
+  
 	/*
 	 * Enable support for Post Formats.
-	 *
 	 * See: https://codex.wordpress.org/Post_Formats
 	 */
 /*	add_theme_support( 'post-formats', array(
@@ -96,38 +95,29 @@ add_action( 'after_setup_theme', 'posifon_setup' );
 function posifon_scripts() {
 
     // Load our main stylesheet.
-    wp_enqueue_style( 'posifon-style', get_stylesheet_uri(), false, '20150728' );
+    wp_enqueue_style( 'posifon-style', get_stylesheet_uri(), false, '20160324' );
 
     // Load the Internet Explorer 8 specific stylesheet.
-	 wp_enqueue_style( 'posifon-ie8', get_template_directory_uri() . '/css/style-ie8.css', false, '20150727' );
+	 wp_enqueue_style( 'posifon-ie8', get_template_directory_uri() . '/css/style-ie8.css', false, '20160324' );
 	 wp_style_add_data( 'posifon-ie8', 'conditional', 'lt IE 9' );
 
     // Load the Internet Explorer 9 specific stylesheet.
-	 wp_enqueue_style( 'posifon-ie9', get_template_directory_uri() . '/css/style-ie9.css', false, '20150811' );
+	 wp_enqueue_style( 'posifon-ie9', get_template_directory_uri() . '/css/style-ie9.css', false, '20160324' );
 	 wp_style_add_data( 'posifon-ie9', 'conditional', 'gt IE 8' );
 
-
+    // Load comments on single post views
 	if ( is_singular() && comments_open() && get_option( 'thread_comments' ) ) {
 		wp_enqueue_script( 'comment-reply' );
 	}
 
     // Load bestall-script for selectively hiding some elements of the form
     if ( is_page_template( 'template-bestall.php' )) {
-      wp_enqueue_script( 'posifon-bestall', get_template_directory_uri() . '/js/bestall.js', array( 'jquery' ), '20150709', true );
-      wp_enqueue_script( 'posifon-pop-up', get_template_directory_uri() . '/js/jquery.bpopup.min.js', array( 'jquery' ), '0.11.0', true );
-    }
-
-    if ( is_page_template( 'startsida.php' )) {
-      wp_enqueue_script( 'posifon-startsida', get_template_directory_uri() . '/js/startsida.js', array( 'jquery' ), '20150722', true );
-    }
-
-    if ( is_page_template( 'template-enhet.php' ) || is_page_template( 'startsida.php' )) {
-      wp_enqueue_script( 'posifon-enheter', get_template_directory_uri() . '/js/enheter.js', array( 'jquery' ), '20150723', true );
+      wp_enqueue_script( 'posifon-bestall', get_template_directory_uri() . '/js/bestall.js', array( 'jquery' ), '20160324', true );
     }
 
     wp_enqueue_script( 'modernizr-script', get_template_directory_uri() . '/js/modernizr.min.js', array( 'jquery' ), '20150726', false);
 
-	wp_enqueue_script( 'posifon-script', get_template_directory_uri() . '/js/main.js', array( 'jquery' ), '20150622', true );
+	wp_enqueue_script( 'posifon-script', get_template_directory_uri() . '/js/main.js', array( 'jquery' ), '20160324', true );
 }
 add_action( 'wp_enqueue_scripts', 'posifon_scripts' );
 

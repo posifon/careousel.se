@@ -60,7 +60,79 @@ jQuery(document).ready(function ($) {
 
   })(jQuery, window, document);
   // end Flexbox polyfill
+  
+  var current;
+    
+  function expanderHide() {
+    $('.expander-content').slideUp(200);
+    $('.minimized').fadeIn(200);
+    $('.expanded').fadeOut(200);
+    return false;
+  }
+  
+  $('.expander-container').on('click', function (e) {
+    current = $(this);
+    expanderHide();
+    current.find('.expander-content').slideDown(200);
+    current.children('.minimized').fadeOut(200);
+    current.children('.expanded').fadeIn(200);
+    return false;
+  });
+  
+  $('.expanded').on('click', function () {
+    current = $(this).parents('.expander-container');
+    expanderHide();
+    return false;
+  });
 
+  $('.expander-content').on('click', function (e) {
+    e.stopPropagation();
+  });
+  
+  $(document).on('click', function () {
+    expanderHide();
+  });
+
+  // function cousins() used by tab-box
+  (function ($) {
+    $.fn.cousins = function (selector) {
+      var cousins;
+      this.each(function () {
+        var auntsAndUncles = $(this).parent().siblings();
+        auntsAndUncles.each(function () {
+          if (cousins == null) {
+            if (selector)
+              cousins = auntsAndUncles.children(selector);
+            else
+              cousins = auntsAndUncles.children();
+          } else {
+            if (selector)
+              cousins.add(auntsAndUncles.children(selector));
+            else
+              cousins.add(auntsAndUncles.children());
+          }
+        });
+      });
+      return cousins;
+    }
+  })(jQuery);
+  
+
+  function openTab(clickedTab) {
+    var thisTab = clickedTab.attr('id').replace("button-", ""); // gets the id of the clicked button
+    clickedTab.cousins().removeClass("active"); // selects the other a-elemnts in the same tab-box and removes the highlight
+    clickedTab.addClass("active"); // adds active class to clicked tab
+    clickedTab.parents(".tab-box").find(".tab-content").hide(); // hides any open content related to the clicked tab
+    $("#" + thisTab).show();
+  }
+    
+  openTab($("#button-advance-gsm"));
+  
+  $(".tab-nav li a").on('click', function (e) {
+    e.preventDefault(); // prevents following the anchor link.
+    openTab($(this)); // calls function openTab with the current tab object as argument. 
+  });
+  
   Modernizr.load({
     test: Modernizr.cssremunit,
     nope: (jsSrc + '/rem.min.js')
