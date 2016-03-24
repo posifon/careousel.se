@@ -1002,6 +1002,15 @@ input[type=submit]:disabled {
 .important {
   border: 1px solid #7c7c7c;
 }
+input[type=submit] {
+  border: 1px solid #3d418d;
+  color: #3d418d;
+  background-color: #fff;
+  margin: 0;
+}
+input[type=submit]:focus {
+  outline: 0;
+}
 #content {
   *zoom: 1;
   float: left;
@@ -1245,10 +1254,13 @@ section.ie img {
   z-index: 2;
   width: 80%;
   padding: 2rem;
-  background-color: rgba(251,251,251,0.65);
+  background-color: rgba(251,251,251,0.75);
   filter: progid:DXImageTransform.Microsoft.gradient(GradientType=0,startColorstr='#96ffffff', endColorstr='#96ffffff');
   overflow: hidden;
   margin: auto;
+}
+.text-overlay h3 {
+  color: #1c1e41;
 }
 html.no-csstransitions .text-overlay {
   text-align: center;
@@ -1390,7 +1402,7 @@ html.no-flexbox .col {
   display: block;
   overflow: hidden;
 }
-@media only screen and (max-width: 400px) {
+@media only screen and (max-width: 800px) {
   .col {
     display: block;
     clear: both;
@@ -1406,7 +1418,7 @@ html.no-flexbox .col {
     margin-right: auto;
   }
 }
-@media only screen and (orientation: portrait) and (min-width: 400px) and (max-width: 600px) {
+@media only screen and (orientation: portrait) and (min-width: 600px) and (max-width: 800px) {
   .col {
     display: block;
     clear: both;
@@ -1419,53 +1431,6 @@ html.no-flexbox .col {
     margin-left: auto;
   }
   .col:last-child {
-    margin-right: auto;
-  }
-}
-.col3 {
-  *zoom: 1;
-  float: left;
-  clear: none;
-  text-align: inherit;
-  width: 31.33333333333333%;
-  margin-left: 0%;
-  margin-right: 3%;
-  padding: 0;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-flex-direction: column;
-  -ms-flex-direction: column;
-  flex-direction: column;
-}
-.col3:before,
-.col3:after {
-  content: '';
-  display: table;
-}
-.col3:after {
-  clear: both;
-}
-.col3:last-child {
-  margin-right: 0%;
-}
-html.no-flexbox .col3 {
-  display: block;
-  overflow: hidden;
-}
-@media only screen and (max-width: 400px) {
-  .col3 {
-    display: block;
-    clear: both;
-    float: none;
-    width: 100%;
-    margin-left: auto;
-    margin-right: auto;
-  }
-  .col3:first-child {
-    margin-left: auto;
-  }
-  .col3:last-child {
     margin-right: auto;
   }
 }
@@ -1596,6 +1561,23 @@ html.no-flexbox .row {
 .tab-box .product-gallery-container:last-child {
   margin-right: 0%;
 }
+@media only screen and (max-width: 800px) {
+  .tab-box .product-gallery-container {
+    display: block;
+    clear: both;
+    float: none;
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
+  }
+  .tab-box .product-gallery-container:first-child {
+    margin-left: auto;
+  }
+  .tab-box .product-gallery-container:last-child {
+    margin-right: auto;
+  }
+}
 .tab-box .product-gallery-container .product-image {
   position: relative;
   line-height: 0;
@@ -1631,6 +1613,22 @@ html.no-flexbox .row {
 .tab-box .product-info-container:last-child {
   margin-right: 0%;
 }
+@media only screen and (max-width: 800px) {
+  .tab-box .product-info-container {
+    display: block;
+    clear: both;
+    float: none;
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .tab-box .product-info-container:first-child {
+    margin-left: auto;
+  }
+  .tab-box .product-info-container:last-child {
+    margin-right: auto;
+  }
+}
 #popup {
   min-width: 300px;
   display: none;
@@ -1654,20 +1652,6 @@ html.no-flexbox .row {
 #form_kontakta_mig input[type="email"]:focus,
 #form_kontakta_mig input[type="tel"]:focus,
 #form_kontakta_mig input[type="number"]:focus {
-  outline: 0;
-}
-#form_kontakta_mig input[type="submit"] {
-  font-size: 1rem;
-  -webkit-border-radius: 0.2rem;
-  -moz-border-radius: 0.2rem;
-  -ms-border-radius: 0.2rem;
-  -o-border-radius: 0.2rem;
-  border-radius: 0.2rem;
-  padding: 0.3rem;
-  margin-bottom: 1rem;
-  border: none;
-}
-#form_kontakta_mig input[type="submit"]:focus {
   outline: 0;
 }
 #form_kontakt fieldset {
@@ -2012,14 +1996,6 @@ html.no-boxshadow #form_bestall_omsorg textarea {
 #form_bestall textarea:focus,
 #form_bestall_omsorg textarea:focus {
   border: 3px solid #1c1e41;
-}
-#form_bestall input[type="submit"],
-#form_bestall_omsorg input[type="submit"] {
-  margin-top: 1rem;
-}
-#form_bestall input[type="submit"]:focus,
-#form_bestall_omsorg input[type="submit"]:focus {
-  outline: 0;
 }
 .expander-content {
   display: none;
