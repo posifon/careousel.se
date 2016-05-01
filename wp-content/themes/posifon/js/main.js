@@ -119,7 +119,8 @@ jQuery(document).ready(function ($) {
     }
   })(jQuery);
   
-
+  $(".tab-nav").removeClass("hide-by-js").addClass("show-by-js");
+  
   function openTab(clickedTab) {
     var thisTab = clickedTab.attr('id').replace("button-", ""); // gets the id of the clicked button
     clickedTab.cousins().removeClass("active"); // selects the other a-elemnts in the same tab-box and removes the highlight

@@ -120,7 +120,7 @@ get_header(); ?>
         </div>
         <div class="product-details-line">
           <div class="tab-box">
-            <ul class="tab-nav">
+            <ul class="hide-by-js tab-nav">
               <?php
               $loop = new WP_Query( array( 'content_taxonomy' => 'products' ) );
               if ($loop->have_posts()) : while ( $loop->have_posts() ) : $loop->the_post();

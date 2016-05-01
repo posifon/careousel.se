@@ -1473,7 +1473,6 @@ html.no-flexbox .row {
 }
 .tab-box .tab-nav {
   list-style: none;
-  display: inline-block;
   margin: 0;
   padding: 0;
   *zoom: 1;
@@ -1631,6 +1630,12 @@ html.no-flexbox .row {
   .tab-box .product-info-container:last-child {
     margin-right: auto;
   }
+}
+.show-by-js {
+  display: inline-block;
+}
+.hide-by-js {
+  display: none;
 }
 #popup {
   min-width: 300px;
