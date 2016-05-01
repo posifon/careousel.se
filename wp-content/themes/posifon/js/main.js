@@ -70,6 +70,8 @@ jQuery(document).ready(function ($) {
     return false;
   }
   
+  expanderHide();
+  
   $('.expander-container').on('click', function (e) {
     current = $(this);
     expanderHide();

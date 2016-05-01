@@ -104,6 +104,9 @@ function posifon_scripts() {
     // Load the Internet Explorer 9 specific stylesheet.
 	 wp_enqueue_style( 'posifon-ie9', get_template_directory_uri() . '/css/style-ie9.css', false, '20160324' );
 	 wp_style_add_data( 'posifon-ie9', 'conditional', 'gt IE 8' );
+    
+    // Load jQuery
+    wp_enqueue_script( 'jquery' );
 
     // Load comments on single post views
 	if ( is_singular() && comments_open() && get_option( 'thread_comments' ) ) {
