@@ -179,12 +179,21 @@ jQuery(document).ready(function ($) {
 			/**
 			 * Event handler after widget was added
 			 */
-			$( document ).triggerHandler( 'wpglobus_cusomize_control_added_widget', [ obj ] );
+			$( document ).triggerHandler( 'wpglobus_customize_control_added_widget', [ obj ] );
 			
 		},	
 		ctrlCallback: function( context, obj, key ) {
 
 			var dis = false;
+			$.each( WPGlobusCustomize.disabledSections, function(i,e) {
+				if ( context.section() == e ) {
+					dis = true;
+					return false;	
+				}	
+			});
+
+			if (dis) return;
+			
 			$.each( WPGlobusCustomize.disabledSettingMask, function(i,e) {
 				/** @see wp.customize.control elements */
 				if ( obj.indexOf( e ) >= 0 ){
@@ -347,7 +356,7 @@ jQuery(document).ready(function ($) {
 				/**
 				 * Event after language was changed
 				 */				
-				$( document ).triggerHandler( 'wpglobus_cusomize_control_language', [ WPGlobusCoreData.language ] );
+				$( document ).triggerHandler( 'wpglobus_customize_control_language', [ WPGlobusCoreData.language ] );
 				
 				$( '.wpglobus-customize-control' ).each( function(i,e){
 					var $e = $(e), 

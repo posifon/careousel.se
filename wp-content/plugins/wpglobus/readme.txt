@@ -3,7 +3,7 @@ Contributors: tivnetinc, alexgff, tivnet
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=SLF8M4YNZHNQN
 Tags: bilingual, globalization, i18n, international, l10n, localization, multilanguage, multilingual, language switcher, translate, translation, WPGlobus
 Requires at least: 4.2
-Tested up to: 4.4.2
+Tested up to: 4.5
 Stable tag: trunk
 License: GPLv2
 License URI: https://github.com/WPGlobus/WPGlobus/blob/master/LICENSE
@@ -77,6 +77,8 @@ WPGlobus may not work correctly on development servers having URLs like `//local
 
 `tr_TR` by [Borahan Conkeroglu](https://twitter.com/boracon68) ~ [WPGlobus WordPress bloglarını ve sitelerini çokdilli yapmakta size yardım eden bir WordPress eklentileri ailesidir.](https://tr.wordpress.org/plugins/wpglobus/).
 
+`uk` by [Pavlo Novak](https://plus.google.com/u/0/114797816817149043222) ~ ["WPGlobus - це колекція ВордПресс плагінів для створення багатомовних сайтів."](https://uk.wordpress.org/plugins/wpglobus/).
+
 **Please help us translate WPGlobus into your language!**
 
 == Installation ==
@@ -126,69 +128,39 @@ No known backward incompatibility issues.
 
 == Changelog ==
 
-= 1.4.9 =
+= 1.5.3 =
 
 * ADDED:
-	* Support for Megamenu plugin
+	* Localize RSS feed URL.
 * FIXED:
-	* ReduxFramework incompatibilities (in Customizer, some themes)
+	* Disappearing translated headline and other Yoast 3.2 - related issues.
 
-= 1.4.8 =
+= 1.5.2 =
 
 * FIXED:
-	* Post title handling in All in One SEO Pack
-	* Yoast SEO tweaks
-	
-= 1.4.7 =
+	* Several issues related to Yoast SEO 3.2.
+
+= 1.5.1 =
 
 * ADDED:
-	* Support for Yoast SEO Version 3.1
+	* Support for Yoast SEO Version 3.2;
+	* Filter 'wpglobus_nav_menu_objects' - allows to modify the localized URLs in menu, if any tweaking is required;
+	* `uk` (Ukrainian) admin interface translation.
 
-= 1.4.6 =
-
-* FIXED:
-	* Backslash in Quick Edit (additional fixes);
-	* Do not add language marks in Quick Edit, if there is only the default language text.
-* ADDED:
-	* Setting WPGlobus options in Customizer (BETA).
-
-= 1.4.5 =
-
-* FIXED:
-	* Backslash in Quick Edit.
-
-= 1.4.4 =
-
-* FIXED:
-	* In Customizer JS: use `control.selector` to get the ID of parent element correctly.
-	* Additional social network names elements disabled by default in Customizer.
-	
-= 1.4.3 =
+= 1.5.0 =
 
 * ADDED:
-	* Clean-up Tool to remove all languages except for the main one.
-
-= 1.4.2 =
-
+	* WordPress 4.5 compatibility;
+	* Customizer improvements related to WordPress 4.5;
+	* Customizer filter `wpglobus_customize_disabled_sections`;
+	* Filter `wpglobus_disabled_acf_fields` to disable ACF and ACF Pro field translation;
+	* `page` as the 3rd parameter to `wpglobus_localize_custom_data` filter;
+	* Support for layers in Slider Revolution plugin;
+	* `wpglobus-translatable` CSS class to post excerpt.
 * FIXED:
-	* Case `data-customize-setting-link` not matching the element name in `wp.customize.control.instance`.
-	* Some CSS improvements.
-
-= 1.4.1 =
-
-* FIXED:
-	* Untranslated page title with Yoast SEO.
-	* Uncaught ReferenceError: WPGlobusCoreData for WooCommerce product without WooCommerce WPGlobus.
-	* Adding item menu title for custom taxonomies.
-
-= 1.4.0 =
-
-* ADDED:
-	* Support for Yoast SEO Version 3.0
-	* Additional flag(s).
-	* 'wpglobus-current-language' CSS class for the WPGlobus Widget.
-	* Any theme Customizer support.
-	* Multilingual Customizer for widgets.
+	* Prevent adding element to itself in `WPGlobusDialogApp`;
+	* Customizer section for [Easy Google Fonts plugin](https://wordpress.org/plugins/easy-google-fonts/);
+	* No fatal error in `WPGlobus_Core::translate_wp_post` when not a `WP_Post` passed (Ticket 6390)
 
 = Earlier versions =
 
@@ -206,4 +178,3 @@ No known backward incompatibility issues.
 	* Demonstration of two WPGlobus-powered sites, one of which is installed in a subfolder of another. Shows the correct behavior of WPGlobus with URLs like `example.com/folder/wordpress`.
 * [WooCommerce Multilingual](http://demo-store.wpglobus.com/):
 	* A multilingual WooCommerce site powered by the `woocommerce-wpglobus` plugin.
-

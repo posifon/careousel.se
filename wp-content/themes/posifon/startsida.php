@@ -17,7 +17,7 @@ get_header(); ?>
           <img src="<?php header_image(); ?>" alt="Front page image" />
         <![endif]-->
         <div id="arrow">
-          <a href="#intro-posifon"></a>
+          <a class="smooth-scroll" href="#intro-posifon"></a>
         </div>
         <div class="text-overlay">
           <div class="first-page-col">

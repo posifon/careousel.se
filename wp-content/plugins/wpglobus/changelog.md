@@ -2,9 +2,44 @@
 
 ## Changelog ##
 
+### 1.5.3 ###
+
+* ADDED:
+	* Localize RSS feed URL.
+* FIXED:
+	* Disappearing translated headline and other Yoast 3.2 - related issues.
+
+### 1.5.2 ###
+
+* FIXED:
+	* Several issues related to Yoast SEO 3.2.
+	
+### 1.5.1 ###
+
+* ADDED:
+	* Support for Yoast SEO Version 3.2;
+	* Filter 'wpglobus_nav_menu_objects' - allows to modify the localized URLs in menu, if any tweaking is required;
+	* `uk` (Ukrainian) admin interface translation.
+
+### 1.5.0 ###
+
+* ADDED:
+	* WordPress 4.5 compatibility;
+	* Customizer improvements related to WordPress 4.5;
+	* Customizer filter `wpglobus_customize_disabled_sections`;
+	* Filter `wpglobus_disabled_acf_fields` to disable ACF and ACF Pro field translation;
+	* `page` as the 3rd parameter to `wpglobus_localize_custom_data` filter;
+	* Support for layers in Slider Revolution plugin;
+	* `wpglobus-translatable` CSS class to post excerpt.
+* FIXED:
+	* Prevent adding element to itself in `WPGlobusDialogApp`;
+	* Customizer section for [Easy Google Fonts plugin](https://wordpress.org/plugins/easy-google-fonts/);
+	* No fatal error in `WPGlobus_Core::translate_wp_post` when not a `WP_Post` passed (Ticket 6390)
+
 ### 1.4.9 ###
 
 * ADDED:
+	* Support for repeater&flexible content fields for Advanced Custom Fields Pro
 	* Support for Megamenu plugin
 * FIXED:
 	* ReduxFramework incompatibilities (in Customizer, some themes)

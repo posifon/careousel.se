@@ -182,6 +182,12 @@ add_filter( 'single_tag_title', array( 'WPGlobus_Filters', 'filter__text' ), 0 )
 add_filter( 'single_term_title', array( 'WPGlobus_Filters', 'filter__text' ), 0 );
 
 /**
+ * Feed options.
+ * @see 'wp_feed_options' action in wp-includes\feed.php
+ */
+add_action( 'wp_feed_options', array( 'WPGlobus_Filters', 'fetch_feed_options' ) );
+
+/**
  * Register the WPGlobus widgets
  * @see   WPGlobusWidget
  * @since 1.0.7
@@ -322,6 +328,18 @@ if ( class_exists( 'Mega_Menu' ) ) {
 	 * @since 1.4.9
 	 */	
 	add_filter( 'megamenu_the_title', array( 'WPGlobus_Filters', 'filter__text' ), 0 );
+}
+
+if ( class_exists( 'RevSliderFront' ) ) {
+	
+	/**
+	 * Translate layers
+	 * @see https://revolution.themepunch.com/
+	 *
+	 * @since 1.5.0
+	 */	
+	require_once 'vendor/class-wpglobus-revslider.php';
+	
 }
 
 # --- EOF

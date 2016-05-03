@@ -6,13 +6,13 @@
  * Description: A WordPress Globalization / Multilingual Plugin. Posts, pages, menus, widgets and even custom fields - in multiple languages!
  * Text Domain: wpglobus
  * Domain Path: /languages/
- * Version: 1.4.9
+ * Version: 1.5.3
  * Author: WPGlobus
  * Author URI: http://www.wpglobus.com/
  * Network: false
  * License: GPL2
  * Credits: TIV.NET INC, Alex Gor (alexgff) and Gregory Karpinsky (tivnet)
- * Copyright 2015 WPGlobus
+ * Copyright 2015-2016 WPGlobus
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2, as
  * published by the Free Software Foundation.
@@ -30,7 +30,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'WPGLOBUS_VERSION', '1.4.9' );
+define( 'WPGLOBUS_VERSION', '1.5.3' );
 define( 'WPGLOBUS_PLUGIN_BASENAME', plugin_basename( __FILE__ ) );
 
 /** @todo Get rid of these */
@@ -56,15 +56,10 @@ WPGlobus::Config();
 require_once 'includes/class-wpglobus-filters.php';
 require_once 'includes/wpglobus-controller.php';
 
-if ( defined( 'WPSEO_VERSION' ) ) {
-	if ( version_compare( WPSEO_VERSION, '3.0.0', '<' ) ) {
-		require_once 'includes/class-wpglobus-wpseo.php';
-		WPGlobus_WPSEO::controller();
-	} else {
-		require_once 'includes/class-wpglobus-yoastseo30.php';
-		WPGlobus_YoastSEO::controller();
-	}	
-}
+/**
+ * Support for Yoast SEO
+ */
+require_once 'includes/wpglobus-yoastseo.php';
 
 /**
  * Support of theme option panels and customizer

@@ -2,20 +2,20 @@ jQuery(document).ready(function ($) {
   // Inside of this function, $() will work as an alias for jQuery()
   // and other libraries also using $ will not be accessible under this shortcut
 
-  
+  // Modernizr
   var jsSrc = $('script[src*=main]').attr('src');  // the js file path
   jsSrc = jsSrc.replace(/main\.js.*$/, ''); // the js folder path
   
-  // Smooth scrolling to anchor
-  $('a[href*=#]:not([href=#])').click(function () {
-    if (location.pathname.replace(/^\//, '') === this.pathname.replace(/^\//, '') || location.hostname === this.hostname) {
-
+  // This will select everything with the class smoothScroll
+  // This should prevent problems with carousel, scrollspy, etc...
+  $('.smooth-scroll').click(function() {
+    if (location.pathname.replace(/^\//, '') == this.pathname.replace(/^\//, '') && location.hostname == this.hostname) {
       var target = $(this.hash);
       target = target.length ? target : $('[name=' + this.hash.slice(1) + ']');
       if (target.length) {
         $('html,body').animate({
           scrollTop: target.offset().top
-        }, 600);
+        }, 400); // The number here represents the speed of the scroll in milliseconds
         return false;
       }
     }
