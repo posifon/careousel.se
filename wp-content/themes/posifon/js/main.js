@@ -15,7 +15,7 @@ jQuery(document).ready(function ($) {
       if (target.length) {
         $('html,body').animate({
           scrollTop: target.offset().top
-        }, 400); // The number here represents the speed of the scroll in milliseconds
+        }, 600);
         return false;
       }
     }
@@ -129,7 +129,7 @@ jQuery(document).ready(function ($) {
     $("#" + thisTab).show();
   }
     
-  openTab($("#button-advance-gsm"));
+  openTab($(".tab-nav").find(".button").first());
   
   $(".tab-nav li a").on('click', function (e) {
     e.preventDefault(); // prevents following the anchor link.
