@@ -176,17 +176,11 @@ class WPGlobus_Config {
 
 	/**
 	 * WPGlobus extended options can be added via filter 'wpglobus_option_sections'
-	 * 
+	 *
 	 * @since 1.2.3
 	 * @var array
-	 */	
-	public $extended_options = array();
-
-	/**
-	 * @since 1.3.0
-	 * @var WPGlobus_WP_Theme $WPGlobus_WP_Theme
 	 */
-	public $WPGlobus_WP_Theme;
+	public $extended_options = array();
 
 	/**
 	 * Constructor
@@ -194,8 +188,7 @@ class WPGlobus_Config {
 	public function __construct() {
 
 		/**
-		 * @since 1.0.9 Hooked to 'plugins_loaded'. The 'init' is too late, because it happens after all
-		 *        plugins already loaded their translations.
+		 * @since 1.0.9 Hooked to 'plugins_loaded'. The 'init' is too late, because it happens after all plugins already loaded their translations.
 		 */
 		add_action( 'plugins_loaded', array(
 			$this,
@@ -265,7 +258,7 @@ class WPGlobus_Config {
 	 * Check plugin version and update versioning option
 	 *
 	 * @param stdClass $object Plugin_Upgrader
-	 * @param array  $options
+	 * @param array    $options
 	 *
 	 * @return void
 	 */
@@ -357,100 +350,66 @@ class WPGlobus_Config {
 		 * Useful links
 		 * - languages in ISO 639-1 format http://en.wikipedia.org/wiki/List_of_ISO_639-1_codes
 		 * - regions http://en.wikipedia.org/wiki/ISO_3166-1_alpha-2
+		 * - WordPress locales https://make.wordpress.org/polyglots/teams/
+		 * - converter https://www.unicodetools.com/unicode/convert-to-html.php
 		 */
-		$this->language_name['en'] = "English";
-		$this->language_name['ru'] = "Русский";
-		$this->language_name['de'] = "Deutsch";
-		$this->language_name['zh'] = "中文";
-		$this->language_name['fi'] = "Suomi";
-		$this->language_name['fr'] = "Français";
-		$this->language_name['nl'] = "Nederlands";
-		$this->language_name['sv'] = "Svenska";
-		$this->language_name['it'] = "Italiano";
-		$this->language_name['ro'] = "Română";
-		$this->language_name['hu'] = "Magyar";
-		$this->language_name['ja'] = "日本語";
-		$this->language_name['es'] = "Español";
-		$this->language_name['vi'] = "Tiếng Việt";
-		$this->language_name['ar'] = "العربية";
-		$this->language_name['pt'] = "Português";
-		$this->language_name['br'] = "Português do Brazil";
-		$this->language_name['pl'] = "Polski";
-		$this->language_name['gl'] = "Galego";
-		$this->language_name['uk'] = "Українська";
 
-		$this->en_language_name['en'] = "English";
-		$this->en_language_name['ru'] = "Russian";
-		$this->en_language_name['de'] = "German";
-		$this->en_language_name['zh'] = "Chinese";
-		$this->en_language_name['fi'] = "Finnish";
-		$this->en_language_name['fr'] = "French";
-		$this->en_language_name['nl'] = "Dutch";
-		$this->en_language_name['sv'] = "Swedish";
-		$this->en_language_name['it'] = "Italian";
-		$this->en_language_name['ro'] = "Romanian";
-		$this->en_language_name['hu'] = "Hungarian";
-		$this->en_language_name['ja'] = "Japanese";
-		$this->en_language_name['es'] = "Spanish";
-		$this->en_language_name['vi'] = "Vietnamese";
-		$this->en_language_name['ar'] = "Arabic";
-		$this->en_language_name['pt'] = "Portuguese";
-		$this->en_language_name['br'] = "Portuguese Brazil";
-		$this->en_language_name['pl'] = "Polish";
-		$this->en_language_name['gl'] = "Galician";
-		$this->en_language_name['uk'] = "Ukrainian";
+		/* @noinspection SpellCheckingInspection */
+		$language_table = array(
+			// Prefix => Name, Native name, locale, flag.
+			'ar' => array( 'Arabic', '&#1575;&#1604;&#1593;&#1585;&#1576;&#1610;&#1577;', 'ar', 'arle.png' ),
+			'en' => array( 'English', 'English', 'en_US', 'us.png' ),
+			'au' => array( 'English (AU)', 'English (AU)', 'en_AU', 'au.png' ),
+			'ca' => array( 'English (CA)', 'English (CA)', 'en_CA', 'ca.png' ),
+			'gb' => array( 'English (UK)', 'English (UK)', 'en_GB', 'uk.png' ),
+			'zh' => array( 'Chinese', '&#31616;&#20307;&#20013;&#25991;', 'zh_CN', 'cn.png' ),
+			'tw' => array( 'Chinese (TW)', '&#32321;&#39636;&#20013;&#25991;', 'zh_CN', 'cn.png' ),
+			'da' => array( 'Danish', 'Dansk', 'da_DK', 'dk.png' ),
+			'nl' => array( 'Dutch', 'Nederlands', 'nl_NL', 'nl.png' ),
+			'gl' => array( 'Galician', 'Galego', 'gl_ES', 'galego.png' ),
+			'de' => array( 'German', 'Deutsch', 'de_DE', 'de.png' ),
+			'fi' => array( 'Finnish', 'Suomi', 'fi', 'fi.png' ),
+			'fr' => array( 'French', 'Français', 'fr_FR', 'fr.png' ),
+			'qc' => array( 'French (CA)', 'Français (CA)', 'fr_CA', 'fr_CA.png' ),
+			'he' => array( 'Hebrew', '&#1506;&#1489;&#1512;&#1497;&#1514;', 'he_IL', 'il.png' ),
+			'hi' => array( 'Hindi', '&#2361;&#2367;&#2344;&#2381;&#2342;&#2368;', 'hi_IN', 'in.png' ),
+			'hu' => array( 'Hungarian', 'Magyar', 'hu_HU', 'hu.png' ),
+			'it' => array( 'Italian', 'Italiano', 'it_IT', 'it.png' ),
+			'ja' => array( 'Japanese', '&#26085;&#26412;&#35486;', 'ja', 'jp.png' ),
+			'ko' => array( 'Korean', '&#54620;&#44397;&#50612;', 'ko_KR', 'kr.png' ),
+			'no' => array( 'Norwegian', 'Norsk', 'nb_NO', 'no.png' ),
+			'fa' => array( 'Persian', '&#1601;&#1575;&#1585;&#1587;&#1740;', 'fa_IR', 'ir.png' ),
+			'pl' => array( 'Polish', 'Polski', 'pl_PL', 'pl.png' ),
+			'pt' => array( 'Portuguese', 'Português', 'pt_PT', 'pt.png' ),
+			'br' => array( 'Portuguese (BR)', 'Português (BR)', 'pt_BR', 'br.png' ),
+			'ro' => array( 'Romanian', 'Română', 'ro_RO', 'ro.png' ),
+			'ru' => array( 'Russian', 'Русский', 'ru_RU', 'ru.png' ),
+			'es' => array( 'Spanish', 'Español', 'es_ES', 'es.png' ),
+			'mx' => array( 'Spanish (MX)', 'Español (MX)', 'es_MX', 'mx.png' ),
+			'sv' => array( 'Swedish', 'Svenska', 'sv_SE', 'se.png' ),
+			'tr' => array( 'Turkish', 'Türkçe', 'tr_TR', 'tr.png' ),
+			'uk' => array( 'Ukrainian', 'Українська', 'uk', 'ua.png' ),
+			'vi' => array( 'Vietnamese', 'Tiếng Việt', 'vi', 'vn.png' ),
+			'cy' => array( 'Welsh', 'Cymraeg', 'cy', 'cy.png' ),
+			);
 
-		#Locales
-		$this->locale['en'] = "en_US";
-		$this->locale['ru'] = "ru_RU";
-		$this->locale['de'] = "de_DE";
-		$this->locale['zh'] = "zh_CN";
-		$this->locale['fi'] = "fi";
-		$this->locale['fr'] = "fr_FR";
-		$this->locale['nl'] = "nl_NL";
-		$this->locale['sv'] = "sv_SE";
-		$this->locale['it'] = "it_IT";
-		$this->locale['ro'] = "ro_RO";
-		$this->locale['hu'] = "hu_HU";
-		$this->locale['ja'] = "ja";
-		$this->locale['es'] = "es_ES";
-		$this->locale['vi'] = "vi";
-		$this->locale['ar'] = "ar";
-		$this->locale['pt'] = "pt_PT";
-		$this->locale['br'] = "pt_BR";
-		$this->locale['pl'] = "pl_PL";
-		$this->locale['gl'] = "gl_ES";
-		$this->locale['uk'] = "uk";
-
-		#flags
-		$this->flag['en'] = 'us.png';
-		$this->flag['ru'] = 'ru.png';
-		$this->flag['de'] = 'de.png';
-		$this->flag['zh'] = 'cn.png';
-		$this->flag['fi'] = 'fi.png';
-		$this->flag['fr'] = 'fr.png';
-		$this->flag['nl'] = 'nl.png';
-		$this->flag['sv'] = 'se.png';
-		$this->flag['it'] = 'it.png';
-		$this->flag['ro'] = 'ro.png';
-		$this->flag['hu'] = 'hu.png';
-		$this->flag['ja'] = 'jp.png';
-		$this->flag['es'] = 'es.png';
-		$this->flag['vi'] = 'vn.png';
-		$this->flag['ar'] = 'arle.png';
-		$this->flag['pt'] = 'pt.png';
-		$this->flag['br'] = 'br.png';
-		$this->flag['pl'] = 'pl.png';
-		$this->flag['gl'] = 'galego.png';
-		$this->flag['uk'] = 'uk.png';
+		foreach ( $language_table as $language => $data ) {
+			list(
+				$this->en_language_name[ $language ],
+				$this->language_name[ $language ],
+				$this->locale[ $language ],
+				$this->flag[ $language ]
+				) = $data;
+		}
 
 	}
 
 	/**
-	 * Set default options
-	 * @return void
+	 * Initialize the language table with the hard-coded names, locales and flags.
+	 *
+	 * @see _set_languages For the hard-coded table.
 	 */
-	protected function _set_default_options() {
+	protected function _init_language_table() {
 
 		update_option( $this->option_language_names, $this->language_name );
 		update_option( $this->option_en_language_names, $this->en_language_name );
@@ -464,6 +423,16 @@ class WPGlobus_Config {
 	 * @return void
 	 */
 	protected function _get_options() {
+
+		/**
+		 * For developers use only. Re-creates language table with no warning! Irreversible!
+		 *
+		 * @link wp-admin/?wpglobus-reset-language-table=1
+		 */
+		if ( ! defined( 'DOING_AJAX' ) && ! empty( $_GET['wpglobus-reset-language-table'] ) && is_admin() ) {
+			delete_option( $this->option_language_names );
+		}
+
 
 		$wpglobus_option = get_option( $this->option );
 
@@ -485,7 +454,7 @@ class WPGlobus_Config {
 		if ( isset( $wpglobus_option['more_languages'] ) ) {
 			unset( $wpglobus_option['more_languages'] );
 		}
-		
+
 		/**
 		 * Get enabled languages and default language ( just one main language )
 		 */
@@ -509,7 +478,7 @@ class WPGlobus_Config {
 		 * Set available languages for editors
 		 */
 		$this->open_languages = $this->enabled_languages;
-		
+
 		/**
 		 * Set flags URL
 		 */
@@ -524,7 +493,7 @@ class WPGlobus_Config {
 		if ( empty( $this->language_name ) ) {
 
 			$this->_set_languages();
-			$this->_set_default_options();
+			$this->_init_language_table();
 
 		}
 
@@ -535,7 +504,7 @@ class WPGlobus_Config {
 		if ( empty( $this->locale ) ) {
 
 			$this->_set_languages();
-			$this->_set_default_options();
+			$this->_init_language_table();
 
 		}
 
@@ -571,9 +540,10 @@ class WPGlobus_Config {
 		 */
 		$this->nav_menu = '';
 		if ( isset( $wpglobus_option['use_nav_menu'] ) ) {
-			$this->nav_menu = ( $wpglobus_option['use_nav_menu'] == 'all' ) ? 'all' : $wpglobus_option['use_nav_menu'];
+			$this->nav_menu = $wpglobus_option['use_nav_menu'];
 			unset( $wpglobus_option['use_nav_menu'] );
 		}
+		// This can be used in `wp-config` to override the options settings.
 		if ( defined( 'WPGLOBUS_USE_NAV_MENU' ) ) {
 			$this->nav_menu = WPGLOBUS_USE_NAV_MENU;
 		}
@@ -583,13 +553,15 @@ class WPGlobus_Config {
 		 * Get selector_wp_list_pages option
 		 * @since 1.0.7
 		 */
-		if ( empty( $wpglobus_option['selector_wp_list_pages']['show_selector'] ) || $wpglobus_option['selector_wp_list_pages']['show_selector'] == 0 ) {
+		if ( empty( $wpglobus_option['selector_wp_list_pages']['show_selector'] ) ||
+		     (int) $wpglobus_option['selector_wp_list_pages']['show_selector'] === 0
+		) {
 			$this->selector_wp_list_pages = false;
 		}
 		if ( isset( $wpglobus_option['selector_wp_list_pages'] ) ) {
 			unset( $wpglobus_option['selector_wp_list_pages'] );
 		}
-		
+
 		/**
 		 * Get custom CSS
 		 */
@@ -643,13 +615,13 @@ class WPGlobus_Config {
 		if ( isset( $wpglobus_option['last_tab'] ) ) {
 			unset( $wpglobus_option['last_tab'] );
 		}
-		
+
 		/**
 		 * Remaining wpglobus options after unset() is extended options
 		 * @since 1.2.3
 		 */
 		$this->extended_options = $wpglobus_option;
-		
+
 	}
 
 } //class

@@ -1,31 +1,41 @@
 <?php
 /**
- * Support of Yoast SEO 3.0
+ * Support of Yoast SEO 3.2
  * @package WPGlobus
- * @since   1.4.0
+ * @since   1.5.1
  */
 
-/**  */
+/**
+ * Class WPGlobus_YoastSEO
+ */
 class WPGlobus_YoastSEO {
-	
-	static $yoastseo_separator = '';
-	
+
+	/**
+	 * Yoast SEO separator.
+	 *
+	 * @var string
+	 */
+	public static $yoastseo_separator = '';
+
+	/**
+	 * Static "controller"
+	 */
 	public static function controller() {
-	
+
 		if ( is_admin() ) {
-			
+
 			if ( ! WPGlobus_WP::is_doing_ajax() ) {
 
-				/** @see \WPGlobus::__construct */
+				/** @see WPGlobus::__construct */
 				WPGlobus::O()->vendors_scripts['WPSEO'] = true;
 
 				if ( WPGlobus_WP::is_pagenow( 'edit.php' ) ) {
-					
+
 					/**
 					 * @since 1.5.3
 					 */
 					add_filter( 'wpseo_replacements_filter_sep', array( __CLASS__, 'filter__get_separator' ), 999 );
-					
+
 					/**
 					 * To translate Yoast columns on edit.php page
 					 */
@@ -40,37 +50,19 @@ class WPGlobus_YoastSEO {
 					'WPGlobus_YoastSEO',
 					'action__admin_print_scripts'
 				) );
-				
+
 				add_action( 'wpseo_tab_content', array(
 					'WPGlobus_YoastSEO',
 					'action__wpseo_tab_content'
 				), 11 );
 
-				/**
-				 * Filter for @see wpseo_linkdex_results
-				 * @scope admin
-				 * @since 1.2.2		 
-				 */			
-				/*
-				 * PHP Notice:  wpseo_linkdex_results filter/action is <strong>deprecated</strong> since version WPSEO 3.0! Use javascript instead. in C:\cygwin\home\www.wpg.dev\wp-includes\functions.php on line 3406
-				 *	
-				add_filter( 'wpseo_linkdex_results', array(
-					'WPGlobus_YoastSEO',
-					'filter__wpseo_linkdex_results'
-				), 10, 3 );	
-				// */
-				
 				if ( WPGlobus_WP::is_pagenow( array( 'edit-tags.php', 'term.php' ) ) ) {
-					/**
-					 * @todo test 'term.php' page with WP 4.5 
-					 */
 					add_filter( 'wp_default_editor', array(
 						'WPGlobus_YoastSEO',
-						'set_default_editor' 
+						'set_default_editor'
 					) );
-					
 				}
-				
+
 			}
 
 		} else {
@@ -78,388 +70,122 @@ class WPGlobus_YoastSEO {
 			 * Filter SEO title and meta description on front only, when the page header HTML tags are generated.
 			 * AJAX is probably not required (waiting for a case).
 			 */
-//			add_filter( 'wpseo_title', array( 'WPGlobus_Filters', 'filter__text' ), 0 );
-			//add_filter( 'wpseo_metadesc', array( 'WPGlobus_Filters', 'filter__text' ), 0 );
-			
-			/**
-			 * Filter for @see wpseo_title
-			 * @scope front
-			 * @since 1.4.0	 
-			 */			
-			add_filter( 'wpseo_title', array( 'WPGlobus_YoastSEO', 'filter__title' ), 0 );
-			
-			/**
-			 * Filter for @see wpseo_description
-			 * @scope front
-			 * @since 1.1.1		 
-			 */			
-			add_filter( 'wpseo_metadesc', array( 'WPGlobus_YoastSEO', 'wpseo_metadesc' ), 0 );					
-
-			/**
-			 * Filter for metadata
-			 * @scope front
-			 * @since 1.4.0	 
-			 */				
-			//add_filter( 'get_post_metadata', array( 'WPGlobus_YoastSEO', 'filter__metadata' ), 0, 4 );
+			add_filter( 'wpseo_title', array( 'WPGlobus_Filters', 'filter__text' ), PHP_INT_MAX );
+			add_filter( 'wpseo_metadesc', array( 'WPGlobus_Filters', 'filter__text' ), PHP_INT_MAX );
+			add_filter( 'get_post_metadata', array( __CLASS__, 'filter__get_post_metadata' ), 0, 4 );
 
 		}
 
 	}
-	
+
+	/**
+	 * Filter Yoast post metadata.
+	 *
+	 * When Yoast builds HTML title and meta description, it looks in tree places:
+	 * - Actual post_title,
+	 * - Title and Description from Yoast Snippet (fancy metabox for each post),
+	 * - Rules (%%title%% %%sep%% %%page%%) in the SEO Settings.
+	 * Yoast gets confused when not all languages are filled in consistently
+	 * (one language has post_title, another one - only Snippet, others - should work
+	 * from the Rules).
+	 * We are trying to hook into the `get_post_metadata` and return filtered values
+	 * to Yoast, so when it should be empty - it's empty and not
+	 * {:xx}Something from another language{:}
+	 *
+	 * @scope         front
+	 * @since         1.4.0 (original)
+	 *                1.5.5 (restored and rewritten)
+	 *
+	 * @param null|array $metadata Comes as NULL. Return something to short-circuit.
+	 * @param int        $post_id  Post ID.
+	 * @param string     $meta_key Empty because the array of all metas is returned.
+	 * @param bool       $single   False in this case.
+	 *
+	 * @return null|array Return metadata array if we are "in business".
+	 */
+	public static function filter__get_post_metadata(
+		$metadata, $post_id, $meta_key, $single
+	) {
+		// Yoast does not pass any `meta_key`, and does not ask for `single`.
+		// Checking it here is faster than going to backtrace directly.
+		if ( $meta_key || $single ) {
+			return $metadata;
+		}
+
+		// We only need to deal with these two callers:
+		if ( WPGlobus_WP::is_functions_in_backtrace( array(
+			array( 'WPSEO_Frontend', 'get_content_title' ),
+			array( 'WPSEO_Frontend', 'generate_metadesc' ),
+		) )
+		) {
+			/**
+			 * The part of getting meta / updating cache is copied from
+			 * @see get_metadata
+			 * (except for doing serialize - we believe it's not necessary for Yoast).
+			 */
+
+			/** @var array $post_meta */
+			$post_meta = wp_cache_get( $post_id, 'post_meta' );
+
+			if ( ! $post_meta ) {
+				$meta_cache = update_meta_cache( 'post', array( $post_id ) );
+				$post_meta  = $meta_cache[ $post_id ];
+			}
+
+			/**
+			 * Filter both title and meta description to the current language.
+			 *
+			 * @important Return empty if no current language text exists,
+			 * do not use the default. Yoast must receive empty string to realize
+			 * that meta is not set for that language.
+			 */
+			foreach ( array( '_yoast_wpseo_title', '_yoast_wpseo_metadesc' ) as $_ ) {
+				if ( ! empty( $post_meta[ $_ ][0] ) ) {
+					$post_meta[ $_ ][0] = WPGlobus_Core::text_filter(
+						$post_meta[ $_ ][0],
+						WPGlobus::Config()->language,
+						WPGlobus::RETURN_EMPTY
+					);
+				}
+			}
+			// ... and return it.
+			$metadata = $post_meta;
+		}
+
+		return $metadata;
+	}
+
 	/**
 	 * Filter to get yoast seo separator.
 	 *
 	 * @since 1.5.3
 	 *
 	 * @param array $sep Contains separator.
+	 *
 	 * @return string
-	 */	
+	 */
 	public static function filter__get_separator( $sep ) {
 		self::$yoastseo_separator = $sep;
+
 		return $sep;
-	}	
-	
+	}
+
 	/**
 	 * Filter which editor should be displayed by default.
 	 *
 	 * @since 1.4.8
 	 *
 	 * @param array $editors An array of editors. Accepts 'tinymce', 'html', 'test'.
-	 */	
-	public static function set_default_editor( $editors ) {
-	
+	 *
+	 * @return string
+	 */
+	public static function set_default_editor(
+		/** @noinspection PhpUnusedParameterInspection */
+		$editors
+	) {
 		return 'tinymce';
-
 	}
-	
-	/**
-	 * Filter meta data
-     *
-	 * @see 
-	 *
-	 * @scope
-	 * @since 1.4.0
-	 *
-	 * @param null   $res
-	 * @param int    $object_id
-	 * @param string $meta_key
-	 * @param bool   $single
-	 *
-	 * @return array || null
-	 */	
-	public static function filter__metadata( $res, $object_id, $meta_key, $single ) {
-	
-		/**
-		 * @todo make cache
-		 * @see get_metadata()
-		 */
-		 
-		if ( $single ) {
-			return null;	
-		}	
-		
-		global $post;
-		
-		if ( empty( $post ) ) {
-			return null;
-		}
-		
-		if ( $object_id != $post->ID ) {
-			return null;
-		}
 
-		/** @global wpdb $wpdb */
-		global $wpdb;
-		$post_meta = $wpdb->get_results( $wpdb->prepare(
-			"SELECT meta_key, meta_value FROM $wpdb->postmeta WHERE post_id = %d;",
-			$object_id 
-		) );
-
-		if ( ! empty( $post_meta ) ) {
-			
-			$custom = array();
-			
-			foreach( $post_meta as $obj ) {
-				
-				if ( '_yoast_wpseo_title' == $obj->meta_key || '_yoast_wpseo_metadesc' == $obj->meta_key ) {
-					$obj->meta_value = WPGlobus_Core::text_filter( $obj->meta_value, WPGlobus::Config()->language, WPGlobus::RETURN_EMPTY );
-				}
-				
-				$custom[ $obj->meta_key ][] = $obj->meta_value;
- 			}	
-
-			return $custom;
-			
-		}
-
-		return null;
-	}	
-	
-	/**
-	 * Filter results for Page Analysis tab in default language
-     *
-	 * @see wpseo_linkdex_results filter
-	 *
-	 * @scope admin
-	 * @since 1.2.2
-	 *
-	 *
-	 * @param array $results
-	 * @param array $job
-	 * @param WP_Post object $post
-	 *
-	 * @return array
-	 */
-	public static function filter__wpseo_linkdex_results( $results, $job, $post ) {
-
-		$job['keyword'] 		= WPGlobus_Core::text_filter( $job['keyword'], WPGlobus::Config()->default_language );
-		$job['keyword_folded'] 	= WPGlobus_Core::text_filter( $job['keyword_folded'], WPGlobus::Config()->default_language );
-
-		$results = WPGlobus_YoastSEO::calculate_results( 
-			$results, 
-			WPGlobus_Core::text_filter( $post->post_content, WPGlobus::Config()->default_language ), 
-			$job, 
-			$post 
-		);
-
-		return $results;
-	}	
-
-	/**
-	 * Calculate the page analysis results for post.
-	 *
-	 * @internal Unfortunately there isn't a filter available to hook into before returning the results
-	 * for get_post_meta(), get_post_custom() and the likes. That would have been the preferred solution.
-	 *
-	 * @see function calculate_results() in wordpress-seo\admin\class-metabox.php
-	 * @scope admin
-	 * @since 1.2.2
-	 *
-	 * @param array $results
-	 * @param string $post_content
-	 * @param array $job, 
-	 * @param WP_Post object $post Post to calculate the results for.
-	 *
-	 * @return  array
-	 */
-	public static function calculate_results( $results, $post_content, $job, $post ) {
-	
-		$WPSEO_Metabox = new WPSEO_Metabox;
-
-		$dom                      = new domDocument;
-		$dom->strictErrorChecking = false;
-		$dom->preserveWhiteSpace  = false;		
-
-		// Check if the post content is not empty.
-		if ( ! empty( $post_content ) ) {
-			@$dom->loadHTML( $post_content );
-		}
-
-		unset( $post_content );
-
-		$xpath = new DOMXPath( $dom );
-
-		// Check if this focus keyword has been used already.
-		$WPSEO_Metabox->check_double_focus_keyword( $job, $results );
-
-		// Keyword.
-		$WPSEO_Metabox->score_keyword( $job['keyword'], $results );
-
-		// Title.
-		$title = WPSEO_Meta::get_value( 'title', $post->ID );
-		if ( $title !== '' ) {
-			$job['title'] = $title;
-		}
-		else {
-			if ( isset( $options[ 'title-' . $post->post_type ] ) && $options[ 'title-' . $post->post_type ] !== '' ) {
-				$title_template = $options[ 'title-' . $post->post_type ];
-			}
-			else {
-				$title_template = '%%title%% - %%sitename%%';
-			}
-			$job['title'] = wpseo_replace_vars( $title_template, $post );
-		}
-		unset( $title );
-		$WPSEO_Metabox->score_title( $job, $results );
-		// Meta description.
-		$description = '';
-		// $desc_meta   = WPSEO_Meta::get_value( 'metadesc', $post->ID );
-		$desc_meta   = WPGlobus_Core::text_filter( WPSEO_Meta::get_value( 'metadesc', $post->ID ), WPGlobus::Config()->default_language );
-		if ( $desc_meta !== '' ) {
-			$description = $desc_meta;
-		}
-		elseif ( isset( $options[ 'metadesc-' . $post->post_type ] ) && $options[ 'metadesc-' . $post->post_type ] !== '' ) {
-			$description = wpseo_replace_vars( $options[ 'metadesc-' . $post->post_type ], $post );
-		}
-		unset( $desc_meta );
-
-		WPSEO_Meta::$meta_length = apply_filters( 'wpseo_metadesc_length', WPSEO_Meta::$meta_length, $post );
-
-		$WPSEO_Metabox->score_description( $job, $results, $description, WPSEO_Meta::$meta_length );
-		unset( $description );
-
-		// Body.
-		// $body   = $WPSEO_Metabox->get_body( $post );
-		$body   = WPGlobus_Core::text_filter( $WPSEO_Metabox->get_body( $post ), WPGlobus::Config()->default_language );
-		$firstp = $WPSEO_Metabox->get_first_paragraph( $body );
-		$WPSEO_Metabox->score_body( $job, $results, $body, $firstp );
-		unset( $firstp );
-
-		// URL.
-		$WPSEO_Metabox->score_url( $job, $results );
-
-		// Headings.
-		$headings = $WPSEO_Metabox->get_headings( $body );
-		$WPSEO_Metabox->score_headings( $job, $results, $headings );
-		unset( $headings );
-
-		// Images.
-		$imgs          = array();
-		$imgs['count'] = substr_count( $body, '<img' );
-		$imgs          = $WPSEO_Metabox->get_images_alt_text( $post->ID, $body, $imgs );
-
-		// Check featured image.
-		if ( function_exists( 'has_post_thumbnail' ) && has_post_thumbnail() ) {
-			$imgs['count'] += 1;
-
-			if ( empty( $imgs['alts'] ) ) {
-				$imgs['alts'] = array();
-			}
-
-			$imgs['alts'][] = $WPSEO_Metabox->strtolower_utf8( get_post_meta( get_post_thumbnail_id( $post->ID ), '_wp_attachment_image_alt', true ) );
-		}
-
-		$WPSEO_Metabox->score_images_alt_text( $job, $results, $imgs );
-		unset( $imgs );
-		unset( $body );
-
-		// Anchors.
-		$anchors = $WPSEO_Metabox->get_anchor_texts( $xpath );
-		$count   = $WPSEO_Metabox->get_anchor_count( $xpath );
-
-		$WPSEO_Metabox->score_anchor_texts( $job, $results, $anchors, $count );
-		unset( $anchors, $count, $dom );	
-
-		return $results;	
-		
-	}	
-	 
-	/**
-	 * Filter SEO meta description
-	 *
-	 * @scope front
-	 * @since 1.1.1		 
-	 *
-	 * @param string $text
-	 *
-	 * @return string
-	 */		
-	public static function wpseo_metadesc( $text ) {
-		
-		if ( empty( $text ) ) {
-			return $text;
-		}	
-		
-		return WPGlobus_Core::text_filter( $text, WPGlobus::Config()->language );
-	
-	}
-	
-	/**
-	 * Generate title
-	 *
-	 * @see get_title_from_options()
-	 * @scope front
-	 * @since 1.1.1		 
-	 *
-	 * @param string $text
-	 *
-	 * @return string
-	 */	
-	public static function filter__title( $text ) {
-		
-		/**
-		 * We get $text with language's marks
-		 */
-		if ( ! is_singular() ) {
-			return $text;
-		}
-		
-		$extra_title = WPGlobus_Core::text_filter( $text, WPGlobus::Config()->language, WPGlobus::RETURN_EMPTY );
-		if ( ! empty( $extra_title ) ) {
-			return $extra_title;
-		}	
-		
-		/**
-		 * We have $post->post_title without language's marks
-		 * so if post has not extra post title then we get post title in default language
-		 */
-		global $post;
-		
-		if ( ! empty( $post ) ) {
-			$yoast_wpseo_title = get_post_meta( $post->ID, '_yoast_wpseo_title', true );
-		}
-		
-		if ( empty( $yoast_wpseo_title ) ) {
-			
-			if ( WPGlobus::Config()->language == WPGlobus::Config()->default_language ) :
-				/**
-				 * When meta '_yoast_wpseo_title' is empty 
-				 * for default language we get autogenerated $text like 'Title - WPGlobus'
-				 */				
-				/** do nothing */
-
-				/** 
-				 * but sometimes (noted for pages) we get title like '{:en}Title{:}{:ru}Заголовок{:} - WPGlobus'
-				 * @since 1.4.1		 
-				 */	
-				if ( WPGlobus_Core::has_translations( $text ) ) :
-					$text = self::extract_title( $text );	
-				endif;
-				
-			else :	
-				/**
-				 * When meta '_yoast_wpseo_title' is empty 
-				 * for extra languages we get autogenerated $text like '{:en}Title{:}{:ru}Заголовок{:} - ВПГлобус'
-				 */
-				$text = self::extract_title( $text );	
-				
-			endif;	
-
-		} else {
-			/**
-			 * When meta '_yoast_wpseo_title' is not empty
-			 */			
-			$extra_title = WPGlobus_Core::text_filter( $yoast_wpseo_title, WPGlobus::Config()->language, WPGlobus::RETURN_EMPTY );			
-			
-			if ( empty( $extra_title ) ) { 
-				
-				$clone = $post;
-				/**
-				 * We has not yoast seo title for current language
-				 */
-				$clone->post_title = trim( $clone->post_title );
-					
-				$opts = WPSEO_Options::get_all(); 
-				
-				$replace_vars = $opts['title-post'];
-				if ( ! empty( $opts[ 'title-' . $post->post_type ] ) ) {
-					$replace_vars = $opts[ 'title-' . $post->post_type ];
-				}
-
-				$extra_title = wpseo_replace_vars( $replace_vars, $clone );					
-
-				unset( $clone );
-				
-			}
-			
-			$text = $extra_title;
-			
-		}	
-
-		return $text;
-		
-	}
-	
 	/**
 	 * To translate Yoast columns
 	 * @see   WPSEO_Meta_Columns::column_content
@@ -472,23 +198,23 @@ class WPGlobus_YoastSEO {
 	 * @link  https://github.com/Yoast/wordpress-seo/pull/1946
 	 */
 	public static function filter__wpseo_columns( $text ) {
-		
+
 		if ( WPGlobus_WP::is_filter_called_by( 'column_content', 'WPSEO_Meta_Columns' ) ) {
-			
-			if ( false !== strpos( $text, self::$yoastseo_separator ) ) {
+
+			if ( self::$yoastseo_separator && false !== strpos( $text, self::$yoastseo_separator ) ) {
 
 				$title_arr = explode( self::$yoastseo_separator, $text );
-				
-				foreach( $title_arr as $key=>$piece ) {
-					if ( $key == 0 ) {
+
+				foreach ( $title_arr as $key => $piece ) {
+					if ( (int) $key === 0 ) {
 						$title_arr[ $key ] = WPGlobus_Core::text_filter( $piece, WPGlobus::Config()->language ) . ' ';
 					} else {
 						$title_arr[ $key ] = ' ' . WPGlobus_Core::text_filter( $piece, WPGlobus::Config()->language );
-					}	
+					}
 				}
-				
+
 				$text = implode( self::$yoastseo_separator, $title_arr );
-				
+
 			} else {
 
 				$text = WPGlobus_Core::text_filter(
@@ -497,8 +223,8 @@ class WPGlobus_YoastSEO {
 					null,
 					WPGlobus::Config()->default_language
 				);
-				
-			}	
+
+			}
 		}
 
 		return $text;
@@ -510,36 +236,38 @@ class WPGlobus_YoastSEO {
 	 */
 	public static function action__admin_print_scripts() {
 
-		if ( 'off' == WPGLobus::Config()->toggle ) {
-			return;		
+		if ( 'off' === WPGlobus::Config()->toggle ) {
+			return;
 		}
-		
+
+		/** @global string $pagenow */
 		global $pagenow;
-		
+
 		$enabled_pages = array(
-			'post.php', 
-			'post-new.php', 
+			'post.php',
+			'post-new.php',
 			'edit-tags.php',
 			'term.php'
 		);
-		
+
 		if ( WPGlobus_WP::is_pagenow( $enabled_pages ) ) {
 
 			WPGlobus::O()->vendors_scripts['WPSEO'] = true;
-			
-			$yoastseo_plus_access = sprintf( 
-				__( 'Please see %s to get access to page analysis with YoastSEO.', '' ), 
-				'<a href="http://www.wpglobus.com/product/wpglobus-plus/#yoastseo" target="_blank">WPGlobus Plus</a>' 
+
+			$yoastseo_plus_access = sprintf(
+				__( 'Please see %s to get access to page analysis with YoastSEO.', '' ),
+				'<a href="http://www.wpglobus.com/product/wpglobus-plus/#yoastseo" target="_blank">WPGlobus Plus</a>'
 			);
-			
+
 			$i18n = array(
 				'yoastseo_plus_access' => $yoastseo_plus_access
 			);
-			
+
 			$handle = 'wpglobus-yoastseo';
 
 			/** @noinspection PhpInternalEntityUsedInspection */
 			$src_version = version_compare( WPSEO_VERSION, '3.1', '>=' ) ? '31' : '30';
+			/** @noinspection PhpInternalEntityUsedInspection */
 			$src_version = version_compare( WPSEO_VERSION, '3.2', '>=' ) ? '32' : $src_version;
 
 			$src = WPGlobus::$PLUGIN_DIR_URL . 'includes/js/' .
@@ -564,7 +292,7 @@ class WPGlobus_YoastSEO {
 					'i18n'    => $i18n
 				)
 			);
-				
+
 		}
 
 	}
@@ -583,14 +311,14 @@ class WPGlobus_YoastSEO {
 		}
 
 		$permalink = array();
-		if ( 'publish' == $post->post_status ) {
+		if ( 'publish' === $post->post_status ) {
 			$permalink['url']    = get_permalink( $post->ID );
 			$permalink['action'] = 'complete';
 		} else {
 			$permalink['url']    = trailingslashit( home_url() );
 			$permalink['action'] = '';
 		}
-		
+
 		// #wpseo-metabox-tabs
 		/**
 		 * Array of id to make multilingual
@@ -624,15 +352,15 @@ class WPGlobus_YoastSEO {
 			'snippet-editor-slug',
 			'snippet-editor-meta-description'
 		);
-		
+
 		$names = array(
 			'yoast_wpseo_focuskw_text_input',
 			'yoast_wpseo_focuskw',
 			'yoast_wpseo_title',
 			'yoast_wpseo_metadesc',
 			'yoast_wpseo_linkdex'
-		);	
-		
+		);
+
 		$qtip = array(
 			'snippetpreviewhelp',
 			'focuskw_text_inputhelp',
@@ -648,7 +376,7 @@ class WPGlobus_YoastSEO {
 			'focuskw_text_input-help-toggle',
 			'pageanalysis-help-toggle'
 		);
-		
+
 		?>
 
 		<div id="wpglobus-wpseo-tabs" style="width:90%; float:right;">    <?php
@@ -656,117 +384,85 @@ class WPGlobus_YoastSEO {
 			 * Use span with attributes 'data' for send to js script ids, names elements for which needs to be set new ids, names with language code.
 			 */ ?>
 			<span id="wpglobus-wpseo-attr"
-			      data-ids="<?php echo implode( ',', $ids ); ?>" 
-			      data-names="<?php echo implode( ',', $names ); ?>"
-			      data-qtip="<?php echo implode( ',', $qtip ); ?>">
+			      data-ids="<?php echo esc_attr( implode( ',', $ids ) ); ?>"
+			      data-names="<?php echo esc_attr( implode( ',', $names ) ); ?>"
+			      data-qtip="<?php echo esc_attr( implode( ',', $qtip ) ); ?>">
 			</span>
 			<ul class="wpglobus-wpseo-tabs-list">    <?php
 				$order = 0;
 				foreach ( WPGlobus::Config()->open_languages as $language ) { ?>
-					<li id="wpseo-link-tab-<?php echo $language; ?>"
-					    data-language="<?php echo $language; ?>"
-					    data-order="<?php echo $order; ?>"
+					<li id="wpseo-link-tab-<?php echo esc_attr( $language ); ?>"
+					    data-language="<?php echo esc_attr( $language ); ?>"
+					    data-order="<?php echo esc_attr( $order ); ?>"
 					    class="wpglobus-wpseo-tab"><a
-							href="#wpseo-tab-<?php echo $language; ?>"><?php echo WPGlobus::Config()->en_language_name[ $language ]; ?></a>
+							href="#wpseo-tab-<?php echo $language; ?>"><?php echo esc_attr( WPGlobus::Config()->en_language_name[ $language ] ); ?></a>
 					</li> <?php
 					$order ++;
 				} ?>
-			</ul>    <?php
-			
+			</ul> <?php
+
 			/**
-			 * Get meta description 
+			 * Get meta description
 			 */
-			$metadesc   = get_post_meta( $post->ID, '_yoast_wpseo_metadesc', true );
-			
+			$metadesc = get_post_meta( $post->ID, '_yoast_wpseo_metadesc', true );
+
 			/**
 			 * Get title
-			 */			
+			 */
 			$wpseotitle = get_post_meta( $post->ID, '_yoast_wpseo_title', true );
-			
+
 			/**
 			 * From Yoast3 focus keyword key is '_yoast_wpseo_focuskw_text_input'
-			 */	
-			// $focuskw    = get_post_meta( $post->ID, '_yoast_wpseo_focuskw', true );
-			$focuskw    = get_post_meta( $post->ID, '_yoast_wpseo_focuskw_text_input', true ); 			
-			
-			/** 
+			 */
+			$focuskw = get_post_meta( $post->ID, '_yoast_wpseo_focuskw_text_input', true );
+
+			/**
 			 * make yoast cite base
 			 */
-			list( $yoast_permalink, $yoast_post_name ) = get_sample_permalink( $post->ID );
+			list( $yoast_permalink ) = get_sample_permalink( $post->ID );
 			$yoast_permalink = str_replace( array( '%pagename%', '%postname%' ), '', urldecode( $yoast_permalink ) );
-			$yoast_cite_base = '';
-			
+
 			/**
 			 *  Set cite does not editable by default
 			 */
 			$cite_contenteditable = 'false';
-			
+
 			foreach ( WPGlobus::Config()->open_languages as $language ) {
-				
+
 				$yoast_cite_base = WPGlobus_Utils::localize_url( $yoast_permalink, $language );
-				$yoast_cite_base = str_replace( array('http://','https://'), '', $yoast_cite_base );
+				$yoast_cite_base = str_replace( array( 'http://', 'https://' ), '', $yoast_cite_base );
 				$yoast_cite_base = str_replace( '//', '/', $yoast_cite_base );
-				
+
 				$permalink['url'] = WPGlobus_Utils::localize_url( $permalink['url'], $language );
-				$url = apply_filters( 'wpglobus_wpseo_permalink', $permalink['url'], $language ); 
-				
-				if ( $url != $permalink['url'] ) {
+				$url              = apply_filters( 'wpglobus_wpseo_permalink', $permalink['url'], $language );
+
+				if ( $url !== $permalink['url'] ) {
 					/* We accept that user's filter make complete permalink for draft */
 					/* @todo maybe need more investigation */
 					$permalink['action'] = 'complete';
 				} else {
-					if ( 'publish' != $post->post_status ) {
+					if ( 'publish' !== $post->post_status ) {
 						/**
 						 * We cannot get post-name-full to make correct url here ( for draft & auto-draft ). We do it in JS
 						 * @see var wpseosnippet_url in wpglobus-wpseo-**.js
 						 */
 						$permalink['action'] = '';
-					}	
-				}			?>
+					}
+				} ?>
 				<div id="wpseo-tab-<?php echo $language; ?>" class="wpglobus-wpseo-general"
 				     data-language="<?php echo $language; ?>"
-				     data-url-<?php echo $language; ?>="<?php echo $url; ?>"
-				     data-yoast-cite-base="<?php echo $yoast_cite_base; ?>"
-				     data-cite-contenteditable="<?php echo $cite_contenteditable; ?>"
-				     data-permalink="<?php echo $permalink['action']; ?>"
-				     data-metadesc="<?php echo esc_html( WPGlobus_Core::text_filter( $metadesc, $language, WPGlobus::RETURN_EMPTY ) ); ?>"
-				     data-wpseotitle="<?php echo esc_html( WPGlobus_Core::text_filter( $wpseotitle, $language, WPGlobus::RETURN_EMPTY ) ); ?>"
-				     data-focuskw="<?php echo WPGlobus_Core::text_filter( $focuskw, $language, WPGlobus::RETURN_EMPTY ); ?>">
+				     data-url-<?php echo $language; ?>="<?php echo esc_attr( $url ); ?>"
+				     data-yoast-cite-base="<?php echo esc_attr( $yoast_cite_base ); ?>"
+				     data-cite-contenteditable="<?php echo esc_attr( $cite_contenteditable ); ?>"
+				     data-permalink="<?php echo esc_attr( $permalink['action'] ); ?>"
+				     data-metadesc="<?php echo esc_attr( WPGlobus_Core::text_filter( $metadesc, $language, WPGlobus::RETURN_EMPTY ) ); ?>"
+				     data-wpseotitle="<?php echo esc_attr( WPGlobus_Core::text_filter( $wpseotitle, $language, WPGlobus::RETURN_EMPTY ) ); ?>"
+				     data-focuskw="<?php echo esc_attr( WPGlobus_Core::text_filter( $focuskw, $language, WPGlobus::RETURN_EMPTY ) ); ?>">
 				</div> <?php
 			} ?>
 		</div>
-	<?php
+		<?php
 	}
-
-	/**
-	 * Extract title depending on current language
-	 *
-	 * @scope front
-	 * @since 1.4.1		 
-	 *
-	 * @param string $text
-	 *
-	 * @return string
-	 */	
-	public static function extract_title( $text ) {
-		
-		$tr = '';
-		$title = '';
-		
-		foreach( WPGlobus::Config()->enabled_languages as $l ) {
-			$trans = WPGlobus_Core::text_filter( $text, $l, WPGlobus::RETURN_EMPTY );
-			if ( $l == WPGlobus::Config()->language ) {
-				$title = $trans;	
-			}	
-			if ( ! empty( $trans ) ) {
-				$tr = sprintf( WPGlobus::LOCALE_TAG_START, $l ) . $trans . WPGlobus::LOCALE_TAG_END;
-				$text = str_replace( $tr, '', $text );
-			}
-		}
-		
-		return $title . $text;
-	}	
-
 } // class
 
 # --- EOF

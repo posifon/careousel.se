@@ -1,7 +1,7 @@
 <?php
 /**
  * Admin interface
- * @package WPGlobus/Updater
+ * @package   WPGlobus\Updater
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -196,16 +196,29 @@ if ( ! class_exists( 'WPGlobus_Updater_Menu' ) ) :
 		public function wc_am_api_key_status() {
 			/** @var array $license_status */
 			$license_status       = $this->license_key_status();
-			$license_status_check =
-				( ! empty( $license_status['status_check'] ) &&
-				  $license_status['status_check'] === 'active' ) ?
-					__( 'Active', 'wpglobus' ) :
-					__( 'Inactive', 'wpglobus' );
-			if ( ! empty( $license_status_check ) ) {
-				echo $license_status_check;
+
+			if ( isset( $license_status[ WPGlobus_Updater::KEY_INTERNAL_ERROR ] ) ) {
+				// Something was wrong with the connection to the API server.
+				echo '<span class="wpglobus-mark wpglobus-warning">' .
+				     esc_html( $license_status[ WPGlobus_Updater::KEY_INTERNAL_ERROR ] ) .
+				     '</span><br/> ' .
+				     esc_html__( 'Please contact support@wpglobus.com for assistance.', 'wpglobus' );
 			}
-			if ( ! empty( $license_status['activations_remaining'] ) ) {
-				echo ' (' . $license_status['activations_remaining'] . ')';
+			else {
+				$license_status_check =
+					( ! empty( $license_status['status_check'] ) &&
+					  'active' === strtolower( $license_status['status_check'] ) ) ?
+						__( 'Active', 'wpglobus' ) :
+						__( 'Inactive', 'wpglobus' );
+				if ( ! empty( $license_status_check ) ) {
+					echo $license_status_check;
+				}
+				if ( ! empty( $license_status['activations_remaining'] ) ) {
+					echo ' (' . $license_status['activations_remaining'] . ')';
+				}
+				if ( ! empty( $license_status['additional info'] ) ) {
+					echo '<br/><span class="wpglobus-mark wpglobus-warning">' . $license_status['additional info'] . '</span>';
+				}
 			}
 		}
 
@@ -319,11 +332,11 @@ if ( ! class_exists( 'WPGlobus_Updater_Menu' ) ) :
 		}
 
 		/**
-		 * @param array $activate_results
+		 * @param array|null $activate_results
 		 */
-		protected function _print_activation_error_message( Array $activate_results ) {
+		protected function _print_activation_error_message( $activate_results ) {
 
-			if ( $activate_results == false ) {
+			if ( ! is_array( $activate_results ) || $activate_results == false ) {
 				add_settings_error( 'api_key_check_text', 'api_key_check_error', __( 'Connection failed to the License Key API server. Try again later.', 'wpglobus' ), 'error' );
 			}
 
@@ -367,7 +380,22 @@ if ( ! class_exists( 'WPGlobus_Updater_Menu' ) ) :
 				'licence_key' => $this->WPGlobus_Updater->ame_options[ $this->WPGlobus_Updater->ame_api_key ],
 			);
 
-			return json_decode( $this->WPGlobus_Updater->key()->status( $args ), true );
+// Example of the server response when empty values are passed:
+//			{"error":"Invalid Request","code":"100","additional info":"The email provided is invalid. Status error","activated":"inactive","timestamp":1465313704}
+
+			// Do not call the server with empty arguments. Simulate the error response.
+			if ( ! ( $args['email'] && $args['licence_key'] ) ) {
+				$status = array(
+					'error'           => 'Invalid Request',
+					'code'            => '100',
+					'additional info' => esc_html__( 'The License Key / Email pair is empty or invalid.', 'wpglobus' ),
+					'activated'       => 'inactive',
+					'timestamp'       => time(),
+				);
+			} else {
+				$status = json_decode( $this->WPGlobus_Updater->key()->status( $args ), true );
+			}
+			return $status;
 		}
 
 		/**

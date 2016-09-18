@@ -33,11 +33,13 @@ require_once('SortByDateField.php');
 require_once('SummationRow.php');
 
 require_once('CountField.php');
+require_once('CountInField.php');
 require_once('SumField.php');
 require_once('MinField.php');
 require_once('MaxField.php');
 require_once('AverageField.php');
 require_once('TotalField.php');
+require_once('AddRowNumberField.php');
 
 require_once('cfdb-transform-functions.php');
 

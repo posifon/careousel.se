@@ -2,8 +2,10 @@
 /**
  * WPGlobus Updater
  *
+ * @deprecated Use TIVWP Updater.
+ *
  * @version   0.1.0
- * @package   WPGlobus-WC
+ * @package   WPGlobus\Updater
  * @author    WPGlobus http://www.wpglobus.com/
  * @copyright Copyright 2014-2015 The WPGlobus Team: Alex Gor (alexgff) and Gregory Karpinsky (tivnet)
  * @license   GNU General Public License v3.0 http://www.gnu.org/licenses/gpl-3.0.html
@@ -29,6 +31,8 @@ if ( ! class_exists( 'WPGlobus_Updater' ) ) :
 	 * Class WPGlobus_Updater
 	 */
 	class WPGlobus_Updater {
+
+		const KEY_INTERNAL_ERROR = 'internal_error';
 
 		/**
 		 * @var string
@@ -97,6 +101,7 @@ if ( ! class_exists( 'WPGlobus_Updater' ) ) :
 
 		/**
 		 * @param array $args
+		 *
 		 * @example
 		 *            new WPGlobus_Updater(
 		 *            array(
@@ -141,7 +146,7 @@ if ( ! class_exists( 'WPGlobus_Updater' ) ) :
 			 * Set all data defaults here
 			 */
 			$prefix = $this->ame_software_product_id;
-			$prefix = mb_strtolower( $prefix );
+			$prefix = strtolower( $prefix );
 			$prefix = preg_replace( '/[^%a-z0-9 _-]/', '', $prefix );
 			$prefix = preg_replace( '/[\s-_]+/', '_', $prefix );
 			$prefix = trim( $prefix, '_' );
@@ -161,6 +166,9 @@ if ( ! class_exists( 'WPGlobus_Updater' ) ) :
 			$this->ame_deactivate_checkbox     = $prefix . '_dea_cb';
 			$this->ame_activation_email        = $prefix . '_activation_email';
 			$this->store_options();
+
+			// DEBUG:
+//			$this->clean_options();
 
 			/**
 			 * Set all admin menu data
@@ -206,14 +214,13 @@ if ( ! class_exists( 'WPGlobus_Updater' ) ) :
 			require_once( 'class-wpglobus-updater-admin.php' );
 			new WPGlobus_Updater_Menu( $this );
 
-			$options = get_option( $this->ame_data_key );
-
 			/**
-			 * Check for software updates
+			 * If License and Email entered, check for software updates.
 			 */
-			if ( ! empty( $options ) && $options !== false ) {
-
-				// Checks for software updates
+			if (
+				! empty( $this->ame_options[ $this->ame_api_key ] ) &&
+				! empty( $this->ame_options[ $this->ame_activation_email ] )
+			) {
 				require_once( 'class-wpglobus-updater-check.php' );
 				$_updater_check = new WPGlobus_Updater_API_Check();
 				$_updater_check->init(
@@ -233,9 +240,9 @@ if ( ! class_exists( 'WPGlobus_Updater' ) ) :
 				// To debug messages:
 				// add_action( 'admin_notices', array( $_updater_check, 'no_key_error_notice' ) );
 
-			}
+				add_filter( 'upgrader_pre_download', array( $this, 'filter__upgrader_pre_download' ), 10, 3 );
 
-			add_filter( 'upgrader_pre_download', array( $this, 'filter__upgrader_pre_download' ), 10, 3 );
+			}
 
 		}
 
@@ -247,6 +254,7 @@ if ( ! class_exists( 'WPGlobus_Updater' ) ) :
 		 *                                 Default false.
 		 * @param string      $package     The package file name.
 		 * @param WP_Upgrader $wp_upgrader The WP_Upgrader instance.
+		 *
 		 * @return mixed|WP_Error|bool
 		 * @since 1.2.7
 		 */
@@ -328,7 +336,7 @@ if ( ! class_exists( 'WPGlobus_Updater' ) ) :
 				update_option( $this->ame_data_key, $global_options );
 			}
 
-			$instance = substr( sha1( rand( 10000, 20000 ) . rand( 20000, 30000 ) . rand( 30000, 40000 ) ), 6, 12 );
+			$instance = substr( sha1( mt_rand( 10000, 20000 ) . mt_rand( 20000, 30000 ) . mt_rand( 30000, 40000 ) ), 6, 12 );
 
 			$single_options = array(
 				$this->ame_product_id_key          => $this->ame_software_product_id,
@@ -412,14 +420,19 @@ if ( ! class_exists( 'WPGlobus_Updater' ) ) :
 		/**
 		 * Displays an inactive notice when the software is inactive.
 		 */
-		public function notice_license_inactive() { ?>
-			<?php if ( ! current_user_can( 'manage_options' ) ) {
+		public function notice_license_inactive() {
+
+			// Show notice to admins only and only on the "Plugins" page.
+			if ( ! (
+				current_user_can( 'manage_options' ) &&
+				WPGlobus_WP::is_pagenow( 'plugins.php' )
+			)
+			) {
 				return;
-			} ?>
-			<?php if ( isset( $_GET['page'] ) && $this->ame_activation_tab_key === $_GET['page'] ) {
-				return;
-			} ?>
-			<div class="updated">
+			}
+
+			?>
+			<div class="notice <?php echo WPGlobus_WP::ADMIN_NOTICE_WARNING; ?>">
 				<p>
 					<strong><?php echo esc_html( $this->ame_software_product_id ); ?>: </strong>
 					<?php
@@ -447,7 +460,7 @@ if ( ! class_exists( 'WPGlobus_Updater' ) ) :
 				// check if our API endpoint is in the allowed hosts
 				$host = parse_url( $this->upgrade_url, PHP_URL_HOST );
 
-				if ( ! defined( 'WP_ACCESSIBLE_HOSTS' ) || stristr( WP_ACCESSIBLE_HOSTS, $host ) === false ) {
+				if ( ! defined( 'WP_ACCESSIBLE_HOSTS' ) || stripos( WP_ACCESSIBLE_HOSTS, $host ) === false ) {
 					?>
 					<div class="error">
 						<p>

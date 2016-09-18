@@ -641,7 +641,7 @@ jQuery(document).ready( function ($) {
 						l = $t.data( 'language' ),
 						s = WPGlobusCore.getString( $( 'input[name="yoast_wpseo_title"]' ).val(), $t.val(), l );
 
-					$( '#snippet_title_'+l ).text( $t.val() );
+					$( '#snippet_title_'+l ).html( _this.replaceVariablesPlugin( $t.val() ) );
 
 					YoastSEO.app.rawData.pageTitle = s;  // @todo maybe set at start js ?
 
@@ -803,6 +803,9 @@ jQuery(document).ready( function ($) {
 			});			
 			
 			$( WPGlobusYoastSeo.wpseoTabSelector ).on( 'tabsactivate', function(event, ui){
+				
+				_this.language = ui.newPanel.attr( 'data-language' );
+				
 				if ( ui.newPanel.attr( 'data-language' ) === WPGlobusCoreData.default_language ) {
 					/** set keyword */
 					// set url @see YoastSEO.Analyzer.prototype.urlKeyword
@@ -896,7 +899,7 @@ jQuery(document).ready( function ($) {
 					} else {	
 						temp = set;
 					}	
-					_this.language = l;
+					//_this.language = l;
 					text = _this.replaceVariablesPlugin( temp );
 					$( id+l ).text( text );
 					if ( l == _this.getWPseoTab() ) {
@@ -935,7 +938,7 @@ jQuery(document).ready( function ($) {
 				}
 				//console.log('[4]');
 				$.each( WPGlobusCoreData.enabled_languages, function(i,l) {
-					_this.language = l;
+					//_this.language = l;
 					if ( '' === tr[l] ) {
 						text = _this.replaceVariablesPlugin( _this.title_template );
 					} else {
@@ -952,7 +955,7 @@ jQuery(document).ready( function ($) {
 							return_text	= _this.replaceVariablesPlugin( _this.title_template );
 						}	
 					}	
-					$( id+l ).text( return_text );
+					$( id+l ).html( return_text );
 				});
 			}
 			//console.log('[5]');
@@ -983,7 +986,8 @@ jQuery(document).ready( function ($) {
 					_this.citeModification( l );
 					
 					if ( metaDescText.length == 0 ) {
-						$( id+l ).text( data );
+						//$( id+l ).text( data );
+						$( id+l ).text( '' );
 					} else if ( metaDescText != data ) {
 						$( id+l ).text( metaDescText );
 					}	
@@ -1029,7 +1033,7 @@ jQuery(document).ready( function ($) {
 			}
 			
 			//console.log('[4]');
-		
+			$( id + _this.getWPseoTab() ).text( return_text );		
 			return return_text;
 
 		}	

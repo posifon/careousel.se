@@ -1,7 +1,7 @@
 <?php
 /**
  * Requests to remote server
- * @package WPGlobus/Updater
+ * @package   WPGlobus\Updater
  */
 
 // Exit if accessed directly
@@ -62,16 +62,30 @@ if ( ! class_exists( 'WPGlobus_Updater_Key' ) ) :
 
 			$args = wp_parse_args( $defaults, $args );
 
-			$target_url = esc_url_raw( self::create_software_api_url( $args ) );
+			// Short-circuit on empty license.
+			// Server response example:
+			// {"error":"Invalid API License Key","code":"105","additional info":"No debug information available","activated":"inactive","timestamp":1465319450}
+			if ( ! ( $args['email'] && $args['licence_key'] ) ) {
+				$response = json_encode( array(
+					'error'           => 'Invalid API License Key',
+					'code'            => '105',
+					'additional info' => esc_html__( 'The License Key / Email pair is empty or invalid.', 'wpglobus' ),
+					'activated'       => 'inactive',
+					'timestamp'       => time(),
+				) );
+			} else {
 
-			$request = wp_safe_remote_get( $target_url );
+				$target_url = esc_url_raw( self::create_software_api_url( $args ) );
 
-			if ( is_wp_error( $request ) || wp_remote_retrieve_response_code( $request ) != 200 ) {
-				// Request failed
-				return false;
+				$request = wp_safe_remote_get( $target_url );
+
+				if ( is_wp_error( $request ) || (int) wp_remote_retrieve_response_code( $request ) !== 200 ) {
+					// Request failed
+					return false;
+				}
+
+				$response = wp_remote_retrieve_body( $request );
 			}
-
-			$response = wp_remote_retrieve_body( $request );
 
 			return $response;
 		}
@@ -130,14 +144,34 @@ if ( ! class_exists( 'WPGlobus_Updater_Key' ) ) :
 
 			$request = wp_safe_remote_get( $target_url );
 
-			if ( is_wp_error( $request ) || wp_remote_retrieve_response_code( $request ) != 200 ) {
+			if ( is_wp_error( $request ) ) {
 				// Request failed
-				return false;
+
+				$error_message = '';
+
+				$error_messages = $request->get_error_messages();
+				if ( count( $error_messages ) ) {
+					$error_message = implode( '; ', $error_messages );
+				}
+
+				return json_encode( array(
+					WPGlobus_Updater::KEY_INTERNAL_ERROR => implode( ' ', array(
+						__( 'Licensing server connection error.', 'wpglobus' ),
+						$error_message
+					) ),
+				) );
+
 			}
 
-			$response = wp_remote_retrieve_body( $request );
+			$response_code = (int) wp_remote_retrieve_response_code( $request );
 
-			return $response;
+			if ( 200 !== $response_code ) {
+				return json_encode( array(
+					WPGlobus_Updater::KEY_INTERNAL_ERROR => sprintf( __( 'Licensing server connection error (%d).', 'wpglobus' ), $response_code )
+				) );
+			}
+
+			return wp_remote_retrieve_body( $request );
 		}
 
 	} //class

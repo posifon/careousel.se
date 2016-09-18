@@ -110,13 +110,16 @@ ul.wpglobus-important {
     .wpglobus-translatable {
       border-left: 3px solid blue !important;
     }
+	.wpglobus-link-lock-icon {
+	  cursor: not-allowed;
+	}
 	.wpglobus-link-lock-icon:before {
 	  font-family: 'dashicons';
 	  font-weight: 400;
 	  font-style: normal;
 	  text-decoration: inherit;
 	  content: "\f160";
-	  font-size: 11px;	
+	  font-size: 11px;
 	}
 	.wpglobus-link-open-icon:before {
 	  font-family: 'dashicons';
@@ -124,8 +127,8 @@ ul.wpglobus-important {
 	  font-style: normal;
 	  text-decoration: inherit;
 	  content: "\f504";
-	  font-size: 11px;	
-	}	
+	  font-size: 11px;
+	}
 
 	.wpglobus-spinner {
 		background: url(images/spinner.gif) no-repeat;
@@ -173,7 +176,8 @@ ul.wpglobus-important {
 @color-wpglobus-logo-globe: #E38869;
 @color-wpglobus-logo-wp: #23769C;
 
-.about-wrap {
+// @since 1.5.8 Use our styles only with our `wrap` class.
+.about-wrap.wpglobus-about-wrap {
 	.wpglobus-version {
 		color: @color-wpglobus-logo-globe;
 		font-size: 95%;
@@ -195,6 +199,14 @@ ul.wpglobus-important {
 
 	.wpglobus-stars {
 		color: @color-wpglobus-logo-globe;
+	}
+
+	// The `Customizr` theme breaks this by setting to "center".
+	// @since 1.5.8
+	.feature-section {
+		div {
+			text-align: left;
+		}
 	}
 }
 
@@ -288,4 +300,21 @@ ul.wpglobus-important {
     left: 88px;
   }
 }
+
+// Fix Yoast help buttons. Because we wrap Yoast in jQ-UI tabs,
+// the style might be broken. Specifically, the "Types" plugin breaks it.
+.yoast_help.yoast-help-button.dashicons {
+	font-family: 'dashicons' !important;
+	font-size:   20px !important;
+}
+
+// To highlight texts in admin area.
+.wpglobus-mark {
+	font-weight: 700;
+	&.wpglobus-warning {
+		background-color: yellow;
+		color:            black;
+	}
+}
+
 // --- EOF

@@ -1,6 +1,6 @@
 <?php
 /**
- * @package   WPGlobus/Admin
+ * @package   WPGlobus\Admin\Options
  */
 
 /**
@@ -69,13 +69,13 @@ class WPGlobus_Language_Edit {
 		add_action( 'admin_footer', array( $this, 'on_print_scripts' ), 99 );
 
 	}
-	
+
 	/**
 	 * Add script in admin footer
 	 * @return void
 	 */
 	public function on_print_scripts() {
-		
+
 		if ( 'done' === $this->action ) {
 			$location = '?page=' . WPGlobus::OPTIONS_PAGE_SLUG; ?>
 
@@ -314,13 +314,13 @@ class WPGlobus_Language_Edit {
 					foreach ( $this->submit_messages['errors'] as $message ) {
 						$mess .= $message . '<br />';
 					} ?>
-					<div class="error"><?php echo $mess; ?></div> <?php
+					<div class="error"><p><?php echo $mess; ?></p></div> <?php
 				} elseif ( ! empty( $this->submit_messages['success'] ) ) {
 					$mess = '';
 					foreach ( $this->submit_messages['success'] as $message ) {
 						$mess .= $message . '<br />';
 					} ?>
-					<div class="updated"><?php echo $mess; ?></div> <?php
+					<div class="updated"><p><?php echo $mess; ?></p></div> <?php
 				}
 			} ?>
 			<form id="wpglobus_edit_form" method="post" action="">
@@ -382,24 +382,24 @@ class WPGlobus_Language_Edit {
 				</table>    <?php
 
 				if ( 'edit' === $this->action || 'add' === $this->action ) {	?>
-					
+
 					<p class="submit">	<?php
-					
+
 						if ( 'edit' === $this->action ) {
 							echo '&nbsp;&nbsp;&nbsp';
 							echo '<a href="' . admin_url() . 'admin.php?page=' . WPGlobus::LANGUAGE_EDIT_PAGE . '&action=delete&lang=' . $this->language_code .
-									'" target="_blank">' . 
-									__( 'Delete Language', 'wpglobus' ) . 
+									'" target="_blank">' .
+									__( 'Delete Language', 'wpglobus' ) .
 								 '</a>';
-							echo '&nbsp;&nbsp;&nbsp';			
+							echo '&nbsp;&nbsp;&nbsp';
 						}				?>
-						 
+
 						<input class="button button-primary" type="submit" name="submit"
 							value="<?php esc_attr_e( 'Save Changes', 'wpglobus' ); ?>">
-											 
-				
+
+
 					</p>    <?php
-					
+
 				} elseif ( 'delete' === $this->action ) {
 					?>
 					<p class="submit"><input class="button button-primary" type="submit" name="delete"
