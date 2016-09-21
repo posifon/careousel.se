@@ -107,6 +107,8 @@ function posifon_scripts() {
     
     // Load jQuery
     wp_enqueue_script( 'jquery' );
+    wp_enqueue_script( 'jquery-ui-core');
+    wp_enqueue_script( 'jquery-ui-tabs');
 
     // Load comments on single post views
 	if ( is_singular() && comments_open() && get_option( 'thread_comments' ) ) {

@@ -225,6 +225,10 @@ $border-radius = 5px
 .important
   border 1px solid $posifon-grey
   
+.ui-tabs-active .button
+  color #FFF
+  background-color $posifon-bluegrey
+  
 input[type=submit]
   @extend button
   border 1px solid $blue-comp
@@ -414,18 +418,20 @@ section
     list-style none
     margin 0
     padding 0
+    display inline-block
     li
+      float left
       margin 0
       padding 0
       padding-left 0
       list-style none
+    .ui-tabs-active
+      
     cf()
     .button
       display block
       padding 0.5rem 2rem
       margin 1rem
-    li
-      float left
   .tab-content
     overflow hidden
     text-align left
@@ -453,13 +459,6 @@ section
     col(2/3)
     +below('m')
       stack()
-
-.show-by-js
-  display inline-block
-
-.hide-by-js
-  display none
-
 
 // Beställ popup
 #popup
