@@ -87,40 +87,26 @@ jQuery(document).ready(function ($) {
       function() { $(this).addClass('ui-state-hover'); },
       function() { $(this).removeClass('ui-state-hover'); }
     );
-//    // function cousins() used by tab-box
-//    (function ($) {
-//        $.fn.cousins = function (selector) {
-//            var cousins;
-//            this.each(function () {
-//                var auntsAndUncles = $(this).parent().siblings();
-//                auntsAndUncles.each(function () {
-//                    if (cousins === null) {
-//                        if (selector) cousins = auntsAndUncles.children(selector);
-//                        else cousins = auntsAndUncles.children();
-//                    }
-//                    else {
-//                        if (selector) cousins.add(auntsAndUncles.children(selector));
-//                        else cousins.add(auntsAndUncles.children());
-//                    }
-//                });
-//            });
-//            return cousins;
+    
+    $('.accessories-toggle').click(function(e) {
+      e.stopPropagation();
+      var href = $(this).attr('data');
+      console.log(href);
+      $('a[href="' + href + '"]').click();
+      return false;
+    });
+    
+//    function hide_accessories() {
+//      var links = $('.accessories-toggle');
+//      console.log(links);
+//      for (link in links) {
+//        if(link === null) {
+//          link.hide();
 //        }
-//    })(jQuery);
-//    $(".tab-nav").removeClass("hide-by-js").addClass("show-by-js");
-//
-//    function openTab(clickedTab) {
-//        var thisTab = clickedTab.attr('id').replace("button-", ""); // gets the id of the clicked button
-//        clickedTab.cousins().removeClass("active"); // selects the other a-elemnts in the same tab-box and removes the highlight
-//        clickedTab.addClass("active"); // adds active class to clicked tab
-//        clickedTab.parents(".tab-box").find(".tab-content").hide(); // hides any open content related to the clicked tab
-//        $("#" + thisTab).show();
+//      }
 //    }
-//    openTab($(".tab-nav").find(".button").first());
-//    $(".tab-nav li a").on('click', function (e) {
-//        e.preventDefault(); // prevents following the anchor link.
-//        openTab($(this)); // calls function openTab with the current tab object as argument. 
-//    });
+//  hide_accessories();
+  
     Modernizr.load({
         test: Modernizr.cssremunit
         , nope: (jsSrc + '/rem.min.js')

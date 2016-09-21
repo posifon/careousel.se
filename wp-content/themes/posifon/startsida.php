@@ -126,8 +126,9 @@ get_header(); ?>
               $loop = new WP_Query( array( 'content_taxonomy' => 'products' ) );
               if ($loop->have_posts()) : while ( $loop->have_posts() ) : $loop->the_post();
               // Start of loop ?>
-              <li><a class="button" href="#tabs-<?php echo $i; $i = $i + 1; ?>" id="<?php echo sanitize_title_with_dashes($the_title = get_the_title()); ?>"><?php echo $the_title ?></a></li>
-              <?php endwhile; endif;
+              <li><a class="button" href="#<?php echo sanitize_title_with_dashes($the_title = get_the_title()); ?>" id=""><?php echo $the_title ?></a></li>
+              <li><a class="button" style="display: none;" href="#accessories-<?php echo sanitize_title_with_dashes($the_title); ?>" id="">Tillbehör</a></li>
+              <?php $i = $i + 1; endwhile; endif;
               // end of loop
               ?>
             </ul>
@@ -135,7 +136,7 @@ get_header(); ?>
             $i = 1;
             while ( $loop->have_posts() ) : $loop->the_post(); 
             // Start new loop ?>
-            <div class="post tab-content card" id="tabs-<?php echo $i; $i = $i + 1; ?>">
+            <div class="post tab-content card" id="<?php echo sanitize_title_with_dashes($the_title = get_the_title()); ?>">
               <div class="product-gallery-container">
                 <?php if (has_post_thumbnail()) : ?>
                 <div class="product-image">
@@ -148,12 +149,24 @@ get_header(); ?>
                   } ?>
                 </div>
               </div>
-              <div class="product-info-container">
-                <h3><?php the_title(); ?></h3>
+              <div class="product-info-container">              
+                <p style="float: right;"><a href="" data="#accessories-<?php echo sanitize_title_with_dashes($the_title); ?>" class="button accessories-toggle" id=""><?php esc_html_e('Visa tillbehör', 'accessories-link'); ?></a></p>
+                <h3><?php the_title(); ?></h3> 
                 <?php the_content(); ?>                
               </div>
             </div>
-            <?php endwhile; wp_reset_postdata(); 
+            <?php $i = $i + 1; endwhile; wp_reset_postdata(); 
+            // end of loop
+            ?>
+            <?php $loop = new WP_Query( array( 'content_taxonomy' => 'accessories' ) );
+            if ($loop->have_posts()) : while ( $loop->have_posts() ) : $loop->the_post(); 
+            // Start new loop ?>
+            <div class="post tab-content card" id="accessories-<?php echo sanitize_title_with_dashes($the_title = get_the_title()); ?>">
+              <p style="float: right;"><a href="" data="#<?php echo sanitize_title_with_dashes(get_the_title()); ?>" class="button accessories-toggle" id=""><?php esc_html_e('Visa beskrivning', 'description-link'); ?></a></p>
+              <h3><?php esc_html_e('Tillbehör', 'accessories'); echo " " . $the_title; ?></h3>  
+              <p><?php the_content(); ?></p>
+            </div>
+            <?php $i = $i + 1; endwhile; endif; wp_reset_postdata(); 
             // end of loop
             ?>
           </div>
