@@ -163,8 +163,8 @@ get_header(); ?>
             if ($loop->have_posts()) : while ( $loop->have_posts() ) : $loop->the_post(); 
             // Start new loop ?>
             <div class="post tab-content card" id="<?php echo $post->post_name; ?>">
-              <p style="float: right;"><a href="" data="#<?php echo substr($post->post_name, 11); ?>" class="button accessories-toggle" id=""><?php esc_html_e('Visa beskrivning', 'description-link'); ?></a></p>
-              <h3><?php esc_html_e('Tillbehör', 'accessories'); echo " " . $the_title; ?></h3>  
+              <p style="float: right;"><a href="" data="#<?php echo substr($post->post_name, 12); ?>" class="button accessories-toggle" id=""><?php esc_html_e('Visa beskrivning', 'description-link'); ?></a></p>
+              <h3><?php esc_html_e('Tillbehör', 'accessories'); echo " " . get_the_title(); ?></h3>  
               <p><?php the_content(); ?></p>
             </div>
             <?php $i = $i + 1; endwhile; endif; wp_reset_postdata(); 
